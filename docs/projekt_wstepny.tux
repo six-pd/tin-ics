@@ -21,7 +21,7 @@
     \item \ref{srod}. Środowisko . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{srod}
     \item \ref{arch}. Architektura rozwiązania . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{arch}
     \item \ref{api}. API modułów . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{api}
-    \item \ref{kom}. Listy komunikató . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{kom}
+    \item \ref{kom}. Listy komunikatów . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{kom}
     \item \ref{test}. Sposób testowania . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{test}
     \item \ref{prez}. Prezentacja . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{prez}
     \item \ref{prac}. Podział pracy . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{prac}
