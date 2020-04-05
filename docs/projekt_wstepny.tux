@@ -15,18 +15,18 @@
 
 \begin{itemize}
 
-    \item \ref{spis}. Spis treści . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{spis}
-    \item \ref{tresc}. Treść zadania . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{tresc}
-    \item \ref{przyp}. Przypadki użycia . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{przyp}
-    \item \ref{srod}. Środowisko . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{srod}
-    \item \ref{arch}. Architektura rozwiązania . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{arch}
-    \item \ref{api}. API modułów . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{api}
-    \item \ref{kom}. Listy komunikatów . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{kom}
-    \item \ref{test}. Sposób testowania . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{test}
-    \item \ref{prez}. Prezentacja . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{prez}
-    \item \ref{prac}. Podział pracy . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{prac}
-    \item \ref{harm}. Harmonogram pracy . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{harm}
-    \item \ref{git}. Repozytorium github . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{git}
+    \item \ref{spis}. Spis treści . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{spis}
+    \item \ref{tresc}. Treść zadania . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{tresc}
+    \item \ref{przyp}. Przypadki użycia . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{przyp}
+    \item \ref{srod}. Środowisko . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{srod}
+    \item \ref{arch}. Architektura rozwiązania . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{arch}
+    \item \ref{api}. API modułów . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{api}
+    \item \ref{kom}. Listy komunikatów . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{kom}
+    \item \ref{test}. Sposób testowania . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{test}
+    \item \ref{prez}. Prezentacja . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{prez}
+    \item \ref{prac}. Podział pracy . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{prac}
+    \item \ref{harm}. Harmonogram pracy . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{harm}
+    \item \ref{git}. Repozytorium github . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{git}
 
 
 \end{itemize}
