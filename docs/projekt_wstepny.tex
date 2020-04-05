@@ -5,7 +5,7 @@
 
 \author{Bartłomiej Partyka, Michał Urbański, Krzysztof Blankiewicz, Tomasz Załuska}
 
-\title{<lider> - Projekt wstępny TIN}
+\title{Bartłomiej Partyka - Projekt wstępny TIN}
 
 \begin{document}
 
@@ -17,15 +17,14 @@
 
     \item \ref{spis}. Spis treści . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{spis}
     \item \ref{tresc}. Treść zadania . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{tresc}
+    \item \ref{przypf}. Założenia funkcjonalne i niefunkcjolanle . . . . . . . . . . . . . . . . . . . . . \pageref{przypf}
     \item \ref{przyp}. Przypadki użycia . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{przyp}
     \item \ref{srod}. Środowisko . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{srod}
     \item \ref{arch}. Architektura rozwiązania . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{arch}
-    \item \ref{api}. API modułów . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{api}
-    \item \ref{kom}. Listy komunikatów . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{kom}
     \item \ref{test}. Sposób testowania . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{test}
-    \item \ref{prez}. Prezentacja . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{prez}
+    \item \ref{prez}. Prezentacja . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{prez}
     \item \ref{prac}. Podział pracy . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{prac}
-    \item \ref{harm}. Harmonogram pracy . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{harm}
+    \item \ref{harm}. Harmonogram pracy . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{harm}
     \item \ref{git}. Repozytorium github . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \pageref{git}
 
 
@@ -37,7 +36,45 @@ Urządzenia przechowują zmienne statyczne w pamięciach ulotnej i nieulotnej. Z
 
 \section{Nazwa własna\label{nazwa}}
 
-Indomitable Communications System
+ICS - Indomitable Communications System
+\section{Założenia funkcjonalne i niefunkcjonalne\label{przypf}}
+\subsection{Założenia funkcjonalne}
+
+System ICS używa IPv6 jako protokołu warstwy trzeciej.
+
+
+Klient:
+\begin{itemize}
+\item Łączy się z serwerem komunikacji
+\item Wyświetla listę dostępnych klientów
+\item Akceptuje połączenie z innym klientem lub sam inicjuje połączenie
+\item Ma możliwość wysyłania i odbierania dużych plików oraz komunikatów tekstowych
+\item W wypadku zaniku zasilania/połączenia jest w stanie bez przeszkód wznowić komunikację
+\item Ma możliwość utrzymywania wielu połączeń jednocześnie
+\end{itemize}
+Serwer:
+\begin{itemize}
+\item Umożliwia nawiązywanie połączeń między klientami
+\item Umożliwia autoryzację użytkowników poprzez hasło serwerowe
+\item Przechowuje w pamięci ulotnej informację o przesłanych danych aby umożliwić wznowienie komunikacji
+\item Komunikacja jest utrzymywana przez zaniki połączenia aż do zamknięcia połączenia przez użytkownika lub po określonym w konfiguracji czasie nieaktywności
+\item Kontrola przesyłania danych realizowana jest przez specjalnie zaprojektowane API
+\end{itemize}
+Moduł wireshark:
+\begin{itemize}
+\item Służy do testów i debugowania aplikacji
+\item Wspomaga proces tworzenia systemu komunikacji
+\end{itemize}
+
+\subsection{Założenia niefunkcjonalne}
+
+\begin{itemize}
+\item Niezawodna komunikacja
+\item Prosty w obsłudze interfejs klienta
+\item Możliwość konfiguracji parametrów serwera
+\item Możliwość ustawiania parametrów połączenia przez klienta
+\end{itemize}
+
 
 \section{Przypadki użycia\label{przyp}}
 
@@ -47,23 +84,26 @@ Indomitable Communications System
 
 \subsection{Systemy operacyjne}
 
+Projekt tworzony jest dla systemów Linux. Użyte dystrybucje to:
 \begin{itemize}
 
 \item Void Linux 64-bit, kernel 5.4
 \item Debian Linux 10 64-bit, kernel 4.19
+\item Arch Linux 64-bit, kernel ???
 
 \end{itemize}
 
 \subsection{Języki i biblioteki}
 
-Klient i serwer pisane w języku C/C++
-
+Klient i serwer będą pisane w języku C/C++, z wyjątkiem interfejsu użytkownika który będzie pisany w języku Python.
 
 Używane biblioteki:
 \begin{itemize}
 
 \item boost
-
+\item pthread
+\item ncurses
+  
 \end{itemize}
 
 
@@ -71,36 +111,72 @@ Moduły do wireshark napisane w języku Lua.
 
 \subsection{Narzędzia testowe}
 
-Wireshark, wraz z specjalnie napisanym modułem do analizy komunikacji w systemie.
-
-Biblioteka boost.
+Jedym z ważniejszych narzędzi testowych będzie Wireshark, wraz z specjalnie napisanym modułem do analizy komunikacji w systemie.
+ Do testowania funkcji programu posłuży biblioteka boost.
 
 \section{Architektura rozwiązania\label{arch}}
 
-<ilustrację i opis struktury logicznej systemu (koncepcyjnych bloków funkcjonalnych)>
+System ICS składa się z:
+\begin{itemize}
+\item Serwera
+\item Aplikacji klienckiej
+\item Interfejsu użytkownika
+\item Modułu Wireshark
+\end{itemize}
 
-\section{(ewentualnie)API modułów\label{api}}
+\textbf{Serwer} ICS ma za zadanie zawiązywać, kontrolować i utrzymywać połączenia między klientami. Umożliwia on również podstawową autoryzację w postaci hasła. Podczas transferu danych, serwer i klient potwierdzają odbiór bloków danych i są w stanie wznowić transmisję po awarii lub utracie połączenia. Serwer ics posiada plik konfiguracyjny, aby umożliwić administratorowi dostosowanie go do swoich potrzeb.
 
-\section{(ewentualnie)Listy komunikatów\label{kom}}
+
+\textbf{Klient} ICS jest w stanie połączyć się z wybranym serwerem ICS, a następnie nawiązać połączenie z dowolnym klientem dostępnym na serwerze. Połączenie te umożliwia niezawodną transmisję danych -  plików lub wiadomości tekstowych. Każdy klient ma możliwość utrzymywania wielu połączeń na raz. Użytkownik wchodzi w interakcje z klientem poprzez \textbf{prosty interfejs}, umożliwiający przeglądanie otwartch połączeń, przesyłanie danych i modyfikacje parametrów połączenia.
+
+
+\textbf{Moduł Wireshark} tworzony jest aby ułatwić zespołowi pracę nad programem i projektowanie API do komunikacji między serwerem a klientami. Posłuży również do zaprezentowania ostatecznej wersji programu.
+
 
 \section{Sposób testowania\label{test}}
 
 Program będzie testowany pod kątem zgodności z głównym przyjętym założeniem - wznowieniem komunikacji w przypadku braków w zasilaniu, połączeniu.
 
-Używając biblioteki boost zostaną zastosowane testy jednostkowe.
+
+Podczas testowania projektu API komunikacyjnego użyty będzie program Wireshark, aby mieć dokładniejszy wgląd w dane przesyłane między serwerem a klientami.
+
+Prowadzone będą również testy jednostkowe i regresyjne, używając biblioteki boost.
+
 
 \section{Prezentacja\label{prez}}
 
-<scenariusze testów akceptacyjnych>
+\begin{enumerate}
+    \item Pomyślna kompilacja
+    \item Uruchomienie serwera i podłączenie klientów
+    \item Prezentacja komunikacji między klientami
+    \item Prezentacja komunikacji dla różnych przypadków utraty połączenia/zasilania.
+    \item Obserwacja ruchu programem Wireshark
+\end{enumerate}
+    
 
 \section{Podział pracy\label{prac}}
+\begin{itemize}
+\item Bartłomiej Partyka - Moduł Wireshark, Interfejs, Klient.
+
+\item Michał Urbański - Testy, boost, makefile, pomoc w pracy nad głównymi modułami.
+
+\item Krzysztof Blankiewicz - API komunikacji, Serwer(niezawodna komunikacja).
+
+\item Tomasz Załuska - Gniazda, Serwer(zarządzanie połączeniami). 
+\end{itemize}
 
 \section{Harmonogram pracy\label{harm}}
 
-<minimum 1, zalecane 2 punkty kontrolne dla odbioru częściowych funkcji/modułów projektu>
+Proponowany jest następujący harmonogram pracy:
+
+
+25.04.2020  - Prototyp - działająca aplikacja klienta i serwera umożliwiające komunikację
+
+
+10.05.2020  - Działająca wersja wersja z zaimplementowanym mechanizmem przeciwdziałania zanikom zasilania
 
 \section{Repozytorium github\label{git}}
 
-Projekt jest dostępny pod adresem: \url{https://github.com/six-pd/tin-ics}
+Projekt jest publicznie dostępny pod adresem: \url{https://github.com/six-pd/tin-ics}
 
 \end{document}
