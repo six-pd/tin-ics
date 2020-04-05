@@ -37,7 +37,7 @@ Urządzenia przechowują zmienne statyczne w pamięciach ulotnej i nieulotnej. Z
 
 \section{Nazwa własna\label{nazwa}}
 
-<ciekawa nazwa>
+Indomitable Communications System
 
 \section{Przypadki użycia\label{przyp}}
 
@@ -50,6 +50,7 @@ Urządzenia przechowują zmienne statyczne w pamięciach ulotnej i nieulotnej. Z
 \begin{itemize}
 
 \item Void Linux 64-bit, kernel 5.4
+\item Debian Linux 10 64-bit, kernel 4.19
 
 \end{itemize}
 
@@ -61,8 +62,8 @@ Klient i serwer pisane w języku C/C++
 Używane biblioteki:
 \begin{itemize}
 
-\item Biblioteki tutaj
-    
+\item boost
+
 \end{itemize}
 
 
@@ -71,6 +72,8 @@ Moduły do wireshark napisane w języku Lua.
 \subsection{Narzędzia testowe}
 
 Wireshark, wraz z specjalnie napisanym modułem do analizy komunikacji w systemie.
+
+Biblioteka boost.
 
 \section{Architektura rozwiązania\label{arch}}
 
@@ -82,7 +85,9 @@ Wireshark, wraz z specjalnie napisanym modułem do analizy komunikacji w systemi
 
 \section{Sposób testowania\label{test}}
 
-Program będzie testowany pod kątem jego 
+Program będzie testowany pod kątem zgodności z głównym przyjętym założeniem - wznowieniem komunikacji w przypadku braków w zasilaniu, połączeniu.
+
+Używając biblioteki boost zostaną zastosowane testy jednostkowe.
 
 \section{Prezentacja\label{prez}}
 
