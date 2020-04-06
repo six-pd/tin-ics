@@ -78,7 +78,18 @@ Moduł wireshark:
 
 \section{Przypadki użycia\label{przyp}}
 
+\begin{enumerate}
+\item Klient łączy się z serwerem, loguje i wybiera z listy innego klienta, z którym inicjuje połączenie.
+Każdy klient może być połączony z kilkoma klientami jednocześnie.
+\item Klient może wysłać wiadomość (tekst lub plik) do dowolnego klienta, z którym jest połączony.
+\item Wiadomość po podzieleniu na bloki jest wysyłana na serwer, który podczas odbierania danych przechowuje informację o ilości odebranych dotychczas danych. W przypadku zaniku i wznowieniu zasilania, po ponownym połączeniu się z serwerem nadawca automatycznie wznawia wysyłanie wiadomości.
+\item Po udanym wysłaniu pliku przez nadawcę serwer rozpoczyna przesyłanie pliku odbiorcy, prosząc użytkownika o potwierdzenie odbioru każdego wysłanego bloku. Serwer przechowuje informację o ilości poprawnie wysłanych danych, w przypadku przerwania, po ponownym połączeniu, serwer automatycznie wznawia wysyłanie do klienta.
+\item Po udanej transmisji wiadomość jest usuwana z serwera (lub po pewnym określonym czasie)
+\item Transmisja wiadomości może być anulowana w każdej chwili przez obie strony. 
+\item Odebrany plik zapisuje się na dysku odbiorcy, odebrany tekst wyświetla się w konsoli.
+\end{enumerate}
 
+Użytkownik może się w dowolnej chwili rozłączyć z serwerem.
 
 \section{Środowisko\label{srod}}
 
