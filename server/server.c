@@ -7,26 +7,27 @@
 #include <string.h>
 #include <unistd.h>
 
+
 #define TRUE 1
 
 int  main(int argc, char **argv)
 {
     int sock, length;
-    struct sockaddr_in server;
+    struct sockaddr_in6 server;
     int msgsock;
     char buf[1024];
     int rval;
 
-    sock = socket(AF_INET, SOCK_STREAM, 0);
+    sock = socket(AF_INET6, SOCK_STREAM, 0);
     if (sock == -1) {
         perror("opening stream socket");
         exit(1);
     }
 /* dowiaz adres do gniazda */
 
-    server.sin_family = AF_INET;
-    server.sin_addr.s_addr = INADDR_ANY;
-    server.sin_port = 0;
+    server.sin6_family = AF_INET6;
+    server.sin6_addr = in6addr_any;
+    server.sin6_port = 0;
     if (bind(sock, (struct sockaddr *) &server, sizeof server)
         == -1) {
         perror("binding stream socket");
@@ -39,7 +40,7 @@ int  main(int argc, char **argv)
         perror("getting socket name");
         exit(1);
     }
-    printf("Socket port #%d\n", ntohs(server.sin_port));
+    printf("Socket port #%d\n", ntohs(server.sin6_port));
     /* zacznij przyjmowaæ polaczenia... */
     listen(sock, 5);
     

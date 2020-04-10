@@ -12,29 +12,29 @@
 int main(int argc, char *argv[])
 {
     int sock;
-    struct sockaddr_in server;
-    struct hostent *hp, *gethostbyname();
+    struct sockaddr_in6 server;
+    struct hostent *hp, *gethostbyname2();
     char buf[1024];
 
     /* Create socket. */
-    sock = socket( AF_INET, SOCK_STREAM, 0 );
+    sock = socket( AF_INET6, SOCK_STREAM, 0 );
     if (sock == -1) {
         perror("opening stream socket");
         exit(1);
     }
 
     /* uzyskajmy adres IP z nazwy . */
-    server.sin_family = AF_INET;
-    hp = gethostbyname(argv[1] );
+    server.sin6_family = AF_INET6;
+    hp = gethostbyname2(argv[1], AF_INET6 );
 
 /* hostbyname zwraca strukture zawierajaca adres danego hosta */
     if (hp == (struct hostent *) 0) {
         fprintf(stderr, "%s: unknown host\n", argv[1]);
         exit(2);
     }
-    memcpy((char *) &server.sin_addr, (char *) hp->h_addr,
+    memcpy((char *) &server.sin6_addr, (char *) hp->h_addr,
         hp->h_length);
-    server.sin_port = htons(atoi( argv[2]));
+    server.sin6_port = htons(atoi( argv[2]));
     if (connect(sock, (struct sockaddr *) &server, sizeof server)
         == -1) {
         perror("connecting stream socket");
