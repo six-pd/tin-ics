@@ -3,9 +3,9 @@
 \usepackage[utf8]{inputenc}
 \usepackage{url}
 
-\author{Bartłomiej Partyka, Michał Urbański, Krzysztof Blankiewicz, Tomasz Załuska}
+\author{Bartłomiej Partyka - lider, Michał Urbański, Krzysztof Blankiewicz, Tomasz Załuska}
 
-\title{Bartłomiej Partyka - Projekt wstępny TIN}
+\title{Projekt wstępny TIN}
 
 \begin{document}
 
@@ -70,7 +70,7 @@ Moduł wireshark:
 
 \begin{itemize}
 \item Niezawodna komunikacja
-\item Prosty w obsłudze interfejs klienta
+\item Prosty w obsłudze interfejs klienta w linii komend (TUI/CLI)
 \item Możliwość konfiguracji parametrów serwera
 \item Możliwość ustawiania parametrów połączenia przez klienta
 \end{itemize}
@@ -107,7 +107,7 @@ Projekt tworzony jest dla systemów Linux. Użyte dystrybucje to:
 
 \subsection{Języki i biblioteki}
 
-Klient i serwer będą pisane w języku C/C++, z wyjątkiem interfejsu użytkownika który będzie pisany w języku Python.
+Klient i serwer będą pisane w języku C/C++, z wyjątkiem konsolowego interfejsu użytkownika który będzie pisany w języku Python.
 
 Używane biblioteki:
 \begin{itemize}
@@ -128,7 +128,7 @@ Jedym z ważniejszych narzędzi testowych będzie Wireshark, wraz z specjalnie n
 
 \section{Architektura rozwiązania\label{arch}}
 
-System ICS składa się z:
+System ICS składa się z następujących modułów:
 \begin{itemize}
 \item Serwera
 \item Aplikacji klienckiej
@@ -139,7 +139,7 @@ System ICS składa się z:
 \textbf{Serwer} ICS ma za zadanie zawiązywać, kontrolować i utrzymywać połączenia między klientami. Umożliwia on również podstawową autoryzację w postaci hasła. Podczas transferu danych, serwer i klient potwierdzają odbiór bloków danych i są w stanie wznowić transmisję po awarii lub utracie połączenia. Serwer ics posiada plik konfiguracyjny, aby umożliwić administratorowi dostosowanie go do swoich potrzeb.
 
 
-\textbf{Klient} ICS jest w stanie połączyć się z wybranym serwerem ICS, a następnie nawiązać połączenie z dowolnym klientem dostępnym na serwerze. Połączenie te umożliwia niezawodną transmisję danych -  plików lub wiadomości tekstowych. Każdy klient ma możliwość utrzymywania wielu połączeń na raz. Użytkownik wchodzi w interakcje z klientem poprzez \textbf{prosty interfejs}, umożliwiający przeglądanie otwartch połączeń, przesyłanie danych i modyfikacje parametrów połączenia.
+\textbf{Klient} ICS jest w stanie połączyć się z wybranym serwerem ICS, a następnie nawiązać połączenie z dowolnym klientem dostępnym na serwerze. Połączenie te umożliwia niezawodną transmisję danych -  plików lub wiadomości tekstowych. Każdy klient ma możliwość utrzymywania wielu połączeń na raz. Użytkownik wchodzi w interakcje z klientem poprzez \textbf{prosty interfejs} TUI, umożliwiający przeglądanie otwartch połączeń, przesyłanie danych i modyfikacje parametrów połączenia.
 
 
 \textbf{Moduł Wireshark} tworzony jest aby ułatwić zespołowi pracę nad programem i projektowanie API do komunikacji między serwerem a klientami. Posłuży również do zaprezentowania ostatecznej wersji programu.
@@ -147,7 +147,7 @@ System ICS składa się z:
 
 \section{Sposób testowania\label{test}}
 
-Program będzie testowany pod kątem zgodności z głównym przyjętym założeniem - wznowieniem komunikacji w przypadku braków w zasilaniu, połączeniu.
+Program będzie testowany pod kątem zgodności z głównym przyjętym założeniem - wznowieniem komunikacji w przypadku braków w zasilaniu, połączeniu. Zostanie do tego celu użyta specjalna, ,,developerska" wersja klienta, mająca możliwość wysyłania wybranych komunikatów i symulacji awarii poprzez interfejs użytkownika.
 
 
 Podczas testowania projektu API komunikacyjnego użyty będzie program Wireshark, aby mieć dokładniejszy wgląd w dane przesyłane między serwerem a klientami.
@@ -168,7 +168,7 @@ Prowadzone będą również testy jednostkowe i regresyjne, używając bibliotek
 
 \section{Podział pracy\label{prac}}
 \begin{itemize}
-\item Bartłomiej Partyka - Moduł Wireshark, Interfejs, Klient.
+\item Bartłomiej Partyka - lider - Moduł Wireshark, Interfejs, Klient.
 
 \item Michał Urbański - Testy, boost, makefile, pomoc w pracy nad głównymi modułami.
 
