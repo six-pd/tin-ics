@@ -43,5 +43,10 @@ int main(int argc, char *argv[])
     if (write( sock, DATA, sizeof DATA ) == -1)
 
         perror("writing on stream socket");
+    sleep(5);
+    if (write( sock, DATA, sizeof DATA ) == -1)
+
+        perror("writing on stream socket");
+
     close(sock);
     exit(0);}

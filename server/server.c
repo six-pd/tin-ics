@@ -35,7 +35,7 @@ int  main(int argc, char **argv)
     int sock, length;
     struct sockaddr_in6 server;
     int msgsock;
-	pthread_t newThread;
+
     sock = socket(AF_INET6, SOCK_STREAM, 0);
     if (sock == -1) {
         perror("opening stream socket");
@@ -62,7 +62,8 @@ int  main(int argc, char **argv)
     /* zacznij przyjmowaæ polaczenia... */
     listen(sock, 5);
     
-//do {
+do {
+	pthread_t newThread;
         msgsock = accept(sock,(struct sockaddr *) 0,(int *) 0);
         if (msgsock == -1 )
              perror("accept");
@@ -70,15 +71,16 @@ int  main(int argc, char **argv)
 		int* newsock = malloc(sizeof(int));
 		*newsock = msgsock;
 		printf("Starting thread\n");
-		pthread_create(&newThread, NULL, (void*) &function, newsock);
+		int perr = pthread_create(&newThread, NULL, (void*) &function, newsock);
+		printf("pthread_create = %d\n", perr);
         };
         //close(msgsock);
-   // } while(TRUE);
+    } while(TRUE);
     /*
      * gniazdo sock nie zostanie nigdy zamkniete jawnie,
      * jednak wszystkie deskryptory zostana zamkniete gdy proces 
      * zostanie zakonczony (np w wyniku wystapienia sygnalu) 
      */
-
+	
      exit(0);
 }
