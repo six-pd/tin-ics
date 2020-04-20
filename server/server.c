@@ -6,9 +6,29 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
+#include <pthread.h>
 
 #define TRUE 1
+
+void *function(void* arg)
+{
+	printf("Started connection\n");
+	int mySocket = *((int*)arg);
+    char buf[1024];
+    int rval;
+
+    do{
+   		memset(buf, 0, sizeof(buf));
+   		if ((rval = read(mySocket,buf, 1024)) == -1)
+    		perror("reading stream message");
+    	if (rval == 0)
+    		printf("Ending connection\n");
+    	else
+        	printf("-->%s\n", buf);
+	}while(rval != 0);
+	close(mySocket);
+	pthread_exit(NULL);
+}
 
 int  main(int argc, char **argv)
 {
@@ -44,21 +64,18 @@ int  main(int argc, char **argv)
     /* zacznij przyjmowaæ polaczenia... */
     listen(sock, 5);
     
-do {
+//do {
         msgsock = accept(sock,(struct sockaddr *) 0,(int *) 0);
         if (msgsock == -1 )
              perror("accept");
-        else do {
-             memset(buf, 0, sizeof buf);
-             if ((rval = read(msgsock,buf, 1024)) == -1)
-                 perror("reading stream message");
-             if (rval == 0)
-                 printf("Ending connection\n");
-             else
-                 printf("-->%s\n", buf);
-        } while (rval != 0);
-        close(msgsock);
-    } while(TRUE);
+        else {
+		int* newsock = malloc(sizeof(int));
+		*newsock = msgsock;
+		printf("Starting thread\n");
+		pthread_create(&newThread, NULL, (void*) &function, newsock);
+        };
+        //close(msgsock);
+   // } while(TRUE);
     /*
      * gniazdo sock nie zostanie nigdy zamkniete jawnie,
      * jednak wszystkie deskryptory zostana zamkniete gdy proces 

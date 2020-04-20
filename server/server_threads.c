@@ -13,7 +13,7 @@
 void *function(void* arg)
 {
 	printf("Started connection\n");
-	int mySocket = arg;
+	int mySocket = *((int*)arg);
     char buf[1024];
     int rval;
 
@@ -68,7 +68,7 @@ int  main(int argc, char **argv)
         if (msgsock == -1 )
         	perror("accept");
         else{
-        	int* newsock = mallock(sizeof(int));
+        	int* newsock = malloc(sizeof(int));
         	*newsock = msgsock;
         	printf("Starting thread\n");
         	pthread_create(&newThread, NULL, (void*) &function, newsock);
