@@ -14,6 +14,7 @@ void *function(void* arg)
 {
 	printf("Started connection\n");
 	int mySocket = *((int*)arg);
+	free(arg);
     char buf[1024];
     int rval;
 
@@ -74,7 +75,6 @@ do {
 		int perr = pthread_create(&newThread, NULL, (void*) &function, newsock);
 		printf("pthread_create = %d\n", perr);
         };
-        //close(msgsock);
     } while(TRUE);
     /*
      * gniazdo sock nie zostanie nigdy zamkniete jawnie,
