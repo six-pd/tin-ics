@@ -72,8 +72,7 @@ do {
 		int* newsock = malloc(sizeof(int));
 		*newsock = msgsock;
 		printf("Starting thread\n");
-		int perr = pthread_create(&newThread, NULL, (void*) &function, newsock);
-		printf("pthread_create = %d\n", perr);
+		pthread_create(&newThread, NULL, (void*) &function, newsock);
         };
     } while(TRUE);
     /*
