@@ -35,9 +35,7 @@ int  main(int argc, char **argv)
     int sock, length;
     struct sockaddr_in6 server;
     int msgsock;
-    char buf[1024];
-    int rval;
-
+	pthread_t newThread;
     sock = socket(AF_INET6, SOCK_STREAM, 0);
     if (sock == -1) {
         perror("opening stream socket");
