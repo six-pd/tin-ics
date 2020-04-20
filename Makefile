@@ -1,1 +1,0 @@
-Dzien dobry
