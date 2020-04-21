@@ -1,10 +1,10 @@
 CF = #-Wall -g
 
 all: client.o
-	gcc client.o -o client.out
+	g++ client.o -o client.out
 
 client.o: client.c
-	gcc -c $(CF) client.c -o client.o
+	g++ -c $(CF) client.cpp -o client.o
 
 clean:
 	rm *.out *.o

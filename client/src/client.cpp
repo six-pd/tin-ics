@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 {
     int sock;
     struct sockaddr_in6 server;
-    struct hostent *hp, *gethostbyname2();
+    struct hostent *hp;
     char buf[1024];
 
     /* Create socket. */
