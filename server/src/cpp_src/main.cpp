@@ -31,29 +31,28 @@ int  main(int argc, char **argv)
         std::cout << "getting socket name" << std::endl;
         return -1;
     }
-    std::cout << "Socket port" << ntohs(server.sin6_port) << std::endl;
+    std::cout << "Socket port " << ntohs(server.sin6_port) << std::endl;
     /* zacznij przyjmowa� polaczenia... */
     listen(sock, 5);
     
     do {
-	    pthread_t newThread;
-        Client newClient;
-        msgsock = accept(sock,(struct sockaddr *) 0,(socklen_t *) 0);
+        msgsock = accept(sock, (struct sockaddr *) 0,(socklen_t *) 0);
         if (msgsock == -1 )
              std::cout << "accept" << std::endl;
         else 
         {
-            int* newsock =  new int;
-            *newsock = msgsock;
-            std::cout << "Starting thread" << std::endl;
-            pthread_create(&newThread, NULL, (THREADFUNCPTR) &Client::handleClient, newsock);
+            pthread_t newThread;
+            int newSock = msgsock;
+            Client* newClient = new Client(msgsock);
+            //Client::addToSocketsTab(newThread, newSock, newClient);
+
+            std::cout << "Socket acc: " << msgsock << std::endl;
+            std::cout << "Client ptr: " << newClient << std::endl;
+            //Client::printTab();
+            pthread_create(&newThread, NULL, (THREADFUNCPTR) &Client::handleClient, newClient);
         }
     } while(true);
-    /*
-     * gniazdo sock nie zostanie nigdy zamkniete jawnie,
-     * jednak wszystkie deskryptory zostana zamkniete gdy proces 
-     * zostanie zakonczony (np w wyniku wystapienia sygnalu) 
-     */
-	
-     return 0;
+    
+	Client::cleanTab();
+    return 0;
 }

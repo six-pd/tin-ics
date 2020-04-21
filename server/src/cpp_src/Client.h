@@ -9,15 +9,31 @@
 #include <stdlib.h>
 
 #include <pthread.h>
+#include <vector>
+
+class Client;
+
+struct threadSocketAssignment{
+    pthread_t thread;
+    int socket;
+    Client* client;
+    threadSocketAssignment(pthread_t p, int i, Client* c);
+    ~threadSocketAssignment();
+};
 
 class Client{
-    //int mySocket;
-    //char buf[1024];
+    
+    static std::vector<threadSocketAssignment> socketsTab;      // tablica socketow
+    int mySocket = 57;       // moj socket
+    char buf[1024];     // tu bedzie zapisywane co przyjdzie od klientat
 
-    void initialize(void* arg);
     void startConnection();
     void sendClientsList();
     void endConnection();
 public:
-    static void* handleClient(void* arg);
+    Client(int newSocket);
+    static void addToSocketsTab(pthread_t p, int i, Client* c);
+    static void cleanTab();
+    static void printTab();
+    void* handleClient();
 };
