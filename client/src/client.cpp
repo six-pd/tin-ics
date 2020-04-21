@@ -7,6 +7,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "ics.h"
+
 #define DATA "Half a league, half a league . . ."
 
 int main(int argc, char *argv[])
