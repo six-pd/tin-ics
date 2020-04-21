@@ -38,21 +38,16 @@ int  main(int argc, char **argv)
     do {
         msgsock = accept(sock, (struct sockaddr *) 0,(socklen_t *) 0);
         if (msgsock == -1 )
-             std::cout << "accept" << std::endl;
+             std::cout << "Error on accepting" << std::endl;
         else 
         {
             pthread_t newThread;
             int newSock = msgsock;
             Client* newClient = new Client(msgsock);
-            //Client::addToSocketsTab(newThread, newSock, newClient);
 
-            std::cout << "Socket acc: " << msgsock << std::endl;
-            std::cout << "Client ptr: " << newClient << std::endl;
-            //Client::printTab();
             pthread_create(&newThread, NULL, (THREADFUNCPTR) &Client::handleClient, newClient);
         }
     } while(true);
     
-	Client::cleanTab();
     return 0;
 }
