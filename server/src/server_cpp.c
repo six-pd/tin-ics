@@ -33,7 +33,8 @@ void *function(void* arg)
 
 int  main(int argc, char **argv)
 {
-    int sock, length;
+    int sock;
+    socklen_t length;
     struct sockaddr_in6 server;
     int msgsock;
 
@@ -54,7 +55,7 @@ int  main(int argc, char **argv)
     }
     /* wydrukuj na konsoli przydzielony port */
     length = sizeof( server);
-    if (getsockname(sock,(struct sockaddr *) &server,&length)
+    if (getsockname(sock,(struct sockaddr *) &server, &length)
          == -1) {
         perror("getting socket name");
         exit(1);
@@ -65,14 +66,14 @@ int  main(int argc, char **argv)
     
 do {
 	pthread_t newThread;
-        msgsock = accept(sock,(struct sockaddr *) 0,(int *) 0);
+        msgsock = accept(sock,(struct sockaddr *) 0,(socklen_t *) 0);
         if (msgsock == -1 )
              perror("accept");
         else {
-		int* newsock = malloc(sizeof(int));
+		int* newsock = (int*) malloc(sizeof(int));
 		*newsock = msgsock;
 		printf("Starting thread\n");
-		pthread_create(&newThread, NULL, (void*) &function, newsock);
+		pthread_create(&newThread, NULL, &function, newsock);
         };
     } while(TRUE);
     /*
