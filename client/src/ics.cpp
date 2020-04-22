@@ -13,17 +13,27 @@ ics_server::ics_server()
 	this->server.sin6_family = AF_INET6;
 }
 
-int ics_server::ics_connect(char* address, int port)
+int ics_server::ics_handshake();
+{	
+
+	msg = "01";
+	send(sock, msg, strlen(msg), NULL);
+}
+int ics_server::ics_connect(char* addess, int port)
 {
 	/*
-	 * Uzyskujemy IP z nazwy
+	 * Uzyskujemy IP z char* address, w formie d:d:d:d:d:d:d:d
 	 */
-	this->hp = gethostbyname2(address, AF_INET6);
-	if(this->hp == (struct hostent*) 0)
-		throw "Unknown host!\n";
-	memcpy((char*) &(this->server.sin6_addr), (char*) this->hp->h_addr, this->hp->h_length);
+	int e = inet_pton(AF_INET6, address, this->server.sin6_addr);
+	if(e <= 0){
+		if(e == 0)
+			throw "Not a valid IP address";
+		else
+			throw "AF not supported";
+	}
 	this->server.sin6_port = htons(port);
 	if(connect(this->sock, (struct sockaddr*) &(this->server), sizeof (this->server)) == -1)
 		throw "Error while connecting socket.\n";
 	return 0;
 }
+

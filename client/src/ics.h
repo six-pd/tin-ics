@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <arpa/inet.h>
 
 #ifndef ICS_H
 #define ICS_H
@@ -14,13 +15,17 @@
  * Bartlomiej Partyka
 */
 
+#define PATH "/home/user/.ics/"
+#define BUF_SIZE 1024
+
 /*
  * Klasa ics_server zarzadza polaczeniem z serwerem ics. Klient moze utrzymywac polaczenie tylko z jednym serwerem na raz.
  */
 class ics_server 
 {
 	int sock;
-	struct hostent *hp;
+	char buf[BUF_SIZE];
+	char* msg; 
 	struct sockaddr_in6 server;
 
 	/*
