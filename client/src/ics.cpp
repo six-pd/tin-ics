@@ -13,21 +13,21 @@ ics_server::ics_server()
 	this->server.sin6_family = AF_INET6;
 }
 
-int ics_server::ics_handshake();
+int ics_server::ics_handshake()
 {	
 
-	msg = "01";
-	send(sock, msg, strlen(msg), NULL);
+	msg = CL_CONNECTION_REQ;
+	send(sock, msg, strlen(msg), 0);
 	for(;;){
-		recv(sock, buf, 2 + CH_LEN, NULL);
+		recv(sock, buf, 2 + CH_LEN, 0);
 	}
 }
-int ics_server::ics_connect(char* addess, int port)
+int ics_server::ics_connect(char* address, int port)
 {
 	/*
 	 * Uzyskujemy IP z char* address, w formie d:d:d:d:d:d:d:d
 	 */
-	int e = inet_pton(AF_INET6, address, this->server.sin6_addr);
+	int e = inet_pton(AF_INET6, address, (void*) &(this->server.sin6_addr));
 	if(e <= 0){
 		if(e == 0)
 			throw "Not a valid IP address";
