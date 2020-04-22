@@ -18,6 +18,9 @@ int ics_server::ics_handshake();
 
 	msg = "01";
 	send(sock, msg, strlen(msg), NULL);
+	for(;;){
+		recv(sock, buf, 2 + CH_LEN, NULL);
+	}
 }
 int ics_server::ics_connect(char* addess, int port)
 {

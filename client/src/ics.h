@@ -17,6 +17,7 @@
 
 #define PATH "/home/user/.ics/"
 #define BUF_SIZE 1024
+#define CH_LEN 16
 
 /*
  * Klasa ics_server zarzadza polaczeniem z serwerem ics. Klient moze utrzymywac polaczenie tylko z jednym serwerem na raz.
