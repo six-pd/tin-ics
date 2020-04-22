@@ -3,6 +3,7 @@
 int  main(int argc, char **argv)
 {
     typedef void * (*THREADFUNCPTR)(void *);
+   	srand(time(NULL));
 
     int sock;
     socklen_t length;

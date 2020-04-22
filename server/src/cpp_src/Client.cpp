@@ -1,5 +1,6 @@
 #include "Client.h"
 #include <string.h>
+#include <time.h>
 
 std::vector<Client*> Client::clientsList;
 
@@ -31,50 +32,67 @@ void Client::callProperMethod()
 
 void Client::startConnection()
 {
-	std::string stringToSend;
+	sendAndCheckChellenge();
+	askForSSIDAndCheck();
+	getClientName();
 
-	// Server: 	SRV_CHALLENGE_REQ 
-	stringToSend = std::to_string(SRV_CHALLENGE_REQ);
-	sendString(stringToSend);
- 	// Client: 	CL_CHALLENGE_RESP 
+	std::cout << "Client SSID: " << ssid << std::endl;
+	std::cout << "Client name: " << name << std::endl;
+}
+
+void Client::sendAndCheckChellenge()
+{
+	int challenge = rand() % 1000;	//TODO normalny challenge
+	
+	sendString(std::to_string(SRV_CHALLENGE_REQ)+';'+std::to_string(challenge)+';');
+
 	if(!receiveData() || getFlagFromMsg() != CL_CHALLENGE_RESP)
 	{
 		protocolError(CL_CHALLENGE_RESP);
 		return;
 	}
- 	// Server: 	SRV_CHALLENGE_ACC 
-					// sparwdzic challenge
-	stringToSend = std::to_string(SRV_CHALLENGE_ACC);
-	sendString(stringToSend);
- 	// Client: 	CL_SSID_REQ 
+	
+	if(getIntArg(1) == challenge)
+		sendString(std::to_string(SRV_CHALLENGE_ACC));
+	else
+		protocolError(CL_CHALLENGE_RESP);
+	
+}
+
+void Client::askForSSIDAndCheck()
+{
 	if(!receiveData() || getFlagFromMsg() != CL_SSID_REQ)
 	{
 		protocolError(CL_SSID_REQ);
 		return;
 	}
- 	// Server: 	SRV_NEW_SSID 
+	//NEW_SSID:
 	if(getIntArg(1) == 0)
 	{
-		stringToSend = std::to_string(SRV_NEW_SSID);
-		sendString(stringToSend);
+		int newSSID = rand() % 1000;
+		sendString(std::to_string(SRV_NEW_SSID)+';'+std::to_string(newSSID)+';');
+		ssid = newSSID;
 	}
-	// Server: 	SRV_SSID_ACC
+	//PREVIOUS_SSID_ACCEPT
 	else
 	{
-		stringToSend = std::to_string(SRV_SSID_ACC);
-		sendString(stringToSend);
+		ssid = getIntArg(1);
+		sendString(std::to_string(SRV_SSID_ACC)+';');
 	}
- 	// Client: 	CL_NAME
+}
+
+void Client::getClientName()
+{
 	if(!receiveData() || getFlagFromMsg() != CL_NAME)
 	{
 		protocolError(CL_NAME);
 		return;
 	}
- 	// Server: 	SRV_NAME_ACC
-					// zapisz imie
-	stringToSend = std::to_string(SRV_CHALLENGE_ACC);
-	sendString(stringToSend);
+
+	name = getStringArg(1);
+	sendString(std::to_string(SRV_NAME_ACC)+';');
 }
+
 
 void Client::sendClientsList()
 {
@@ -120,7 +138,7 @@ int Client::getFlagFromMsg()
 	return getIntArg(0);
 }
 
-int Client::getIntArg(int argNum)
+int Client::getIntArg(int argNum)	// TODO nie sprawdzam, czy liczba jest liczba
 {
 	int i = 0;
 	int currentArg = 0;
@@ -190,12 +208,14 @@ void Client::protocolError(int flagExpected)
 {
 	std::cout << "Protocol error, " << flagExpected << " with proper agruments expected. " << 
 			"Aborting sequence." << std::endl;
+	undefinedBehaviorError = true;
 }
 
 void Client::sequrityError()
 {
 	std::cout << "Wrong sent data - possible threat" << std::endl;
 	// zrobic klientowi jakas krzywde
+	undefinedBehaviorError = true;
 }
 
 void* Client::handleClient()
