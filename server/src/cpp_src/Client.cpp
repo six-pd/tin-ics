@@ -8,6 +8,11 @@ Client::Client(int newSocket)
 	clientsList.push_back(this);
 }
 
+void Client::callProperMethod()
+{
+	int msgFlag = (buf[0] - '0')*10 + (buf[1] - '0');
+	std::cout << "ProperMethod: " << msgFlag << std::endl;
+}
 
 void Client::startConnection()
 {
@@ -37,7 +42,8 @@ void* Client::handleClient()
     	if (rval == 0)
     		std::cout <<"Ending connection\n" << std::endl;
     	else
-        	std::cout << buf << std::endl;
+        	std::cout << "Otrzymana wiadomosc: " << buf << std::endl;
+		callProperMethod();
 	}while(rval != 0);
 	close(mySocket);
 	// to jest turbo dziwne:

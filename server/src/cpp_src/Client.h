@@ -17,6 +17,7 @@ class Client
     int mySocket;       // moj socket
     char buf[1024];     // tu bedzie zapisywane co przyjdzie od klientat
 
+    void callProperMethod();
     void startConnection();
     void sendClientsList();
     void endConnection();
