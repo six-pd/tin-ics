@@ -68,7 +68,7 @@ class ics_server
 	 * Funkcja prywatna zajmujaca sie autoryzacja oraz polaczeniem z serwerem.
 	 */
 	int ics_handshake();
-	
+	char* ics_auth(char* password, char* challenge);	
 	
 public:
 	ics_server();

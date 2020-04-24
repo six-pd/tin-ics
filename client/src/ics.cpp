@@ -15,7 +15,8 @@ ics_server::ics_server()
 
 int ics_server::ics_handshake()
 {	
-
+	char ch[CH_LEN];
+	char* pass;
 	msg = CL_CONNECTION_REQ;
 	send(sock, msg, strlen(msg), 0);
 	for(;;){
@@ -27,7 +28,18 @@ int ics_server::ics_handshake()
 			//send(sock, msg, strlen(msg), 0);
 			continue;
 		}
+		else{
+			strcpy(ch, buf + 3);
+			strcpy(msg, CL_CHALLENGE_RESP);
+			msg+2 = ';';
+			msg+3 = '\0';
+			msg = strcat(msg, ics_auth(pass, ch));
+			break;	
+		}
+		send(sock, msg, strlen(msg), 0);
+		sleep(10);
 	}
+
 }
 int ics_server::ics_connect(char* address, int port)
 {
