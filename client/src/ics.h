@@ -16,7 +16,7 @@
 */
 
 #define BUF_SIZE 		1024
-#define CH_LEN 			16
+#define CH_LEN 			3	
 
 #define CL_CONNECTION_REQ	"01"
 #define SRV_CHALLENGE_REQ	"02"
@@ -68,6 +68,8 @@ class ics_server
 	 * Funkcja prywatna zajmujaca sie autoryzacja oraz polaczeniem z serwerem.
 	 */
 	int ics_handshake();
+	
+	
 public:
 	ics_server();
 	/*

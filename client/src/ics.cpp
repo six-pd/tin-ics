@@ -19,7 +19,14 @@ int ics_server::ics_handshake()
 	msg = CL_CONNECTION_REQ;
 	send(sock, msg, strlen(msg), 0);
 	for(;;){
-		recv(sock, buf, 2 + CH_LEN, 0);
+		if(recv(sock, buf, 2 + CH_LEN, 0) != 2 + CH_LEN){
+			//send(sock, msg, strlen(msg), 0);
+			continue;
+		}
+		if(strncmp(buf, SRV_CHALLENGE_REQ, 2) != 0){
+			//send(sock, msg, strlen(msg), 0);
+			continue;
+		}
 	}
 }
 int ics_server::ics_connect(char* address, int port)
