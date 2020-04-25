@@ -21,11 +21,11 @@ int ics_server::ics_handshake()
 	send(sock, msg, strlen(msg), 0);
 	for(;;){
 		if(recv(sock, buf, 2 + CH_LEN, 0) != 2 + CH_LEN){
-			//send(sock, msg, strlen(msg), 0);
+			send(sock, msg, strlen(msg), 0);
 			continue;
 		}
 		if(strncmp(buf, SRV_CHALLENGE_REQ, 2) != 0){
-			//send(sock, msg, strlen(msg), 0);
+			send(sock, msg, strlen(msg), 0);
 			continue;
 		}
 		else{
@@ -33,11 +33,25 @@ int ics_server::ics_handshake()
 			strcpy(msg, CL_CHALLENGE_RESP);
 			msg+2 = ';';
 			msg+3 = '\0';
-			msg = strcat(msg, ics_auth(pass, ch));
+		//	pass = "password";
+		//	msg = strcat(msg, ics_auth(pass, ch));
 			break;	
 		}
-		send(sock, msg, strlen(msg), 0);
-		sleep(10);
+		//send(sock, msg, strlen(msg), 0);
+	}
+	send(sock, mgs, strlen(msg), 0);
+	for(;;){
+		if(recv(sock, buf, 2, 0) != 2){
+			send(sock, msg, strlen(msg), 0);
+			continue;
+		}
+		if(strncmp(buf, SVR_CHALLENGE_ACC, 2) != 0){
+			send(sock, msg, strlen(msg), 0);
+			continue;
+		}
+		else{
+			//TODO
+		}
 	}
 
 }
