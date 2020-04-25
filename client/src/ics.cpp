@@ -17,6 +17,8 @@ int ics_server::ics_handshake()
 {	
 	char ch[CH_LEN];
 	char* pass;
+	char* ssid;
+	fstream ssid_file;
 	msg = CL_CONNECTION_REQ;
 	send(sock, msg, strlen(msg), 0);
 	for(;;){
@@ -30,16 +32,17 @@ int ics_server::ics_handshake()
 		}
 		else{
 			strcpy(ch, buf + 3);
-			strcpy(msg, CL_CHALLENGE_RESP);
-			msg+2 = ';';
-			msg+3 = '\0';
+			msg = "03;\0";
+		//	strcpy(msg, CL_CHALLENGE_RESP);
+		//	msg+2 = ';';
+		//	msg+3 = '\0';
 		//	pass = "password";
 		//	msg = strcat(msg, ics_auth(pass, ch));
 			break;	
 		}
 		//send(sock, msg, strlen(msg), 0);
 	}
-	send(sock, mgs, strlen(msg), 0);
+	send(sock, msg, strlen(msg), 0);
 	for(;;){
 		if(recv(sock, buf, 2, 0) != 2){
 			send(sock, msg, strlen(msg), 0);
@@ -50,8 +53,23 @@ int ics_server::ics_handshake()
 			continue;
 		}
 		else{
-			//TODO
+			if(buf[3] == '1'){
+				msg = "05;\0"; //CL_SSID_REQ
+				char * ssid = '\0'; 
+				ssid_file.open(strcat(dirpath, "ssid"));
+				if(!ssid_file.is_open())
+					return -1;
+				ssid_file >> ssid; //does it append \0?
+				if(strlen(ssid) != 3)
+					*ssid = '0';
+				msg = strcat(msg, ssid);
+			}
 		}
+	}
+	//wiadomosc z ssid gotowa
+	send(sock, msg, strlen(msg), 0);
+	for(;;){
+		//TODO
 	}
 
 }

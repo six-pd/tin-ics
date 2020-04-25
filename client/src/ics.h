@@ -63,6 +63,7 @@ class ics_server
 	char buf[BUF_SIZE];
 	char* msg; 
 	struct sockaddr_in6 server;
+	char dirpath[] = ".ics/";
 
 	/*
 	 * Funkcja prywatna zajmujaca sie autoryzacja oraz polaczeniem z serwerem.
