@@ -1,4 +1,4 @@
-#include "Client.h"
+#include "ClientHandling.h"
 #include <string.h>
 #include <time.h>
 
@@ -9,6 +9,7 @@ ClientHandling::ClientHandling(int newSocket)
 	mySocket = newSocket;
 	clientsList.push_back(this);
 }
+
 
 void ClientHandling::callProperMethod()
 {
@@ -142,7 +143,7 @@ int ClientHandling::getIntArg(int argNum)	// TODO nie sprawdzam, czy liczba jest
 {
 	int i = 0;
 	int currentArg = 0;
-	while(currentArg != argNum)
+	while(currentArg != argNum && bufIn[i] == '\0')
 	{
 		if(bufIn[i] == ';')
 			++currentArg;
@@ -155,7 +156,7 @@ int ClientHandling::getIntArg(int argNum)	// TODO nie sprawdzam, czy liczba jest
 	}
 	// teraz i wskazuje na pierwszy element szukanego argumentu
 	std::string targetArgument;
-	while(bufIn[i] != ';')
+	while(bufIn[i] != ';' && bufIn[i] != '\0')
 	{
 		targetArgument += bufIn[i];
 		++i;
@@ -178,7 +179,7 @@ std::string ClientHandling::getStringArg(int argNum)
 {
 	int i = 0;
 	int currentArg = 0;
-	while(currentArg != argNum)
+	while(currentArg != argNum && bufIn[i] != '\0')
 	{
 		if(bufIn[i] == ';')
 			++currentArg;
@@ -191,7 +192,7 @@ std::string ClientHandling::getStringArg(int argNum)
 	}
 	// teraz i wskazuje na pierwszy element szukanego argumentu
 	std::string targetArgument;
-	while(bufIn[i] != ';')
+	while(bufIn[i] != ';' && bufIn[i] != '\0')
 	{
 		targetArgument += bufIn[i];
 		++i;
