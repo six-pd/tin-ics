@@ -7,6 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <fstream>
 
 #ifndef ICS_H
 #define ICS_H
@@ -63,12 +64,20 @@ class ics_server
 	char buf[BUF_SIZE];
 	char* msg; 
 	struct sockaddr_in6 server;
-	char dirpath[] = ".ics/";
+	char* dirpath = ".ics/";	
+	
+	/*
+	 * Funkcja obslugujaca odbieranie komunikatow
+	 */
+
+	int ics_recv(int len, char* flag, int tries);
 
 	/*
-	 * Funkcja prywatna zajmujaca sie autoryzacja oraz polaczeniem z serwerem.
+	 * Funkcja zajmujaca sie autoryzacja oraz polaczeniem z serwerem.
 	 */
 	int ics_handshake();
+
+
 	char* ics_auth(char* password, char* challenge);	
 	
 public:

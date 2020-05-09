@@ -13,65 +13,80 @@ ics_server::ics_server()
 	this->server.sin6_family = AF_INET6;
 }
 
+int ics_server::ics_recv(int len, char* flag, int tries = 20){
+	char temp[BUF_SIZE];
+	for(int i = 0;i++;i < tries){
+		if(recv(sock, temp, len, 0) != len){
+			send(sock, msg, strlen(msg), 0);
+			continue;
+		}
+		if(strncmp(temp, flag, 2) != 0){
+			send(sock, msg, strlen(msg), 0);
+			continue;
+		}else{
+			strcpy(buf, temp + 3);
+			return 0;
+		}
+	}
+	return -1;
+}
+
 int ics_server::ics_handshake()
 {	
-	char ch[CH_LEN];
+	//char ch[CH_LEN];
 	char* pass;
 	char* ssid;
-	fstream ssid_file;
+	std::fstream ssid_file;
+
 	msg = CL_CONNECTION_REQ;
 	send(sock, msg, strlen(msg), 0);
-	for(;;){
-		if(recv(sock, buf, 2 + CH_LEN, 0) != 2 + CH_LEN){
-			send(sock, msg, strlen(msg), 0);
-			continue;
-		}
-		if(strncmp(buf, SRV_CHALLENGE_REQ, 2) != 0){
-			send(sock, msg, strlen(msg), 0);
-			continue;
-		}
-		else{
-			strcpy(ch, buf + 3);
-			msg = "03;\0";
-		//	strcpy(msg, CL_CHALLENGE_RESP);
-		//	msg+2 = ';';
-		//	msg+3 = '\0';
-		//	pass = "password";
-		//	msg = strcat(msg, ics_auth(pass, ch));
-			break;	
-		}
-		//send(sock, msg, strlen(msg), 0);
-	}
-	send(sock, msg, strlen(msg), 0);
-	for(;;){
-		if(recv(sock, buf, 2, 0) != 2){
-			send(sock, msg, strlen(msg), 0);
-			continue;
-		}
-		if(strncmp(buf, SVR_CHALLENGE_ACC, 2) != 0){
-			send(sock, msg, strlen(msg), 0);
-			continue;
-		}
-		else{
-			if(buf[3] == '1'){
-				msg = "05;\0"; //CL_SSID_REQ
-				char * ssid = '\0'; 
-				ssid_file.open(strcat(dirpath, "ssid"));
-				if(!ssid_file.is_open())
-					return -1;
-				ssid_file >> ssid; //does it append \0?
-				if(strlen(ssid) != 3)
-					*ssid = '0';
-				msg = strcat(msg, ssid);
-			}
-		}
-	}
-	//wiadomosc z ssid gotowa
-	send(sock, msg, strlen(msg), 0);
-	for(;;){
-		//TODO
-	}
 
+	if(ics_recv(3+CH_LEN, SRV_CHALLENGE_REQ) != 0)
+		return -2;
+
+	strcpy(msg, CL_CHALLENGE_RESP);
+	msg = strcat(msg, ";\0");
+	pass = "password";
+	//msg = strcat(msg, ics_auth(pass, ch));
+	send(sock, msg, strlen(msg), 0);
+
+	if(ics_recv(4, SRV_CHALLENGE_ACC) != 0)
+		return -4;
+
+	if(strcmp(buf, "0") != 0)
+		return -3; //incorrect password
+	
+	strcpy(msg, CL_SSID_REQ);
+	msg = strcat(msg, ";\0");
+
+	ssid = "\0";
+	ssid_file.open(strcat(dirpath, "ssid"));
+	if(!ssid_file.is_open())
+		return -5;
+	ssid_file >> ssid;
+	if(strlen(ssid) != 3)
+		ssid = "0";
+
+	msg = strcat(msg, ssid);
+	send(sock, msg, strlen(msg), 0);
+
+	if(ssid == "0"){
+		if(ics_recv(6, SRV_NEW_SSID) != 0)
+			return -6;
+		ssid_file.write(buf, 3);
+	}else{
+		if(ics_recv(2, SRV_SSID_ACC) != 0)
+			return -7;
+	}
+	strcpy(msg, CL_NAME);
+	msg = strcat(msg, ";\0");
+	
+	char* name = "nickname";
+	msg = strcat(msg, name);
+
+	if(ics_recv(2, SRV_NAME_ACC)!= 0)
+		return -9;
+	return 0;
 }
 int ics_server::ics_connect(char* address, int port)
 {
@@ -88,6 +103,12 @@ int ics_server::ics_connect(char* address, int port)
 	this->server.sin6_port = htons(port);
 	if(connect(this->sock, (struct sockaddr*) &(this->server), sizeof (this->server)) == -1)
 		throw "Error while connecting socket.\n";
+	int hs = ics_handshake();
+	if(hs < 0){
+		printf("Error code: %d", hs*(-1));
+		throw "Handshake error";
+	}
+
 	return 0;
 }
 
