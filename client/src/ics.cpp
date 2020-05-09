@@ -17,7 +17,7 @@ int ics_server::ics_recv(int len, std::string flag, int tries)
 {
 	char temp[len+1];
 	for(int i = 0;i++;i < tries){
-		if(recv(sock, temp, len, 0) != len)
+		if(recv(sock, temp, len, 0) > len)
 		{
 			send(sock, msg.c_str(), msg.length(), 0);
 			continue;
@@ -117,9 +117,23 @@ int ics_server::ics_connect(std::string address, int port)
 }
 
 std::string ics_server::ics_clist(){
-	return "";
+	std::string clist;
+	msg = CL_LIST_REQ;
+	send(sock, msg.c_str(), msg.length(), 0);
+	if(ics_recv(512, SRV_LIST_RESP) != 0)
+		return "";
+	msg = CL_LIST_ACC; //czy to jest potrzebne
+	send(sock, msg.c_str(), msg.length(), 0);
+	return clist;
 }
 
 int ics_server::ics_disconnect(){
+	std::ofstream ssid_file;
+	msg = CL_END_REQ;
+	send(sock, msg.c_str(), msg.length(), 0);
+	if(ics_recv(2, SRV_END_ACC) != 0)
+		return -1;
+	ssid_file.open(dirpath + "ssid", std::ofstream::out | std::ofstream::trunc); // Czyszczenie pliku ./.ics/ssid
+	ssid_file.close();
 	return 0;
 }
