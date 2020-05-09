@@ -4,13 +4,13 @@ ics_server::ics_server()
 	/*
 	 * Tworzymy gniazdo
 	 */
-	this->sock = socket(AF_INET6, SOCK_DGRAM,0);
+	sock = socket(AF_INET6, SOCK_DGRAM,0);
 	if(sock == -1)
 		throw "Failed to create IPv6 socket!\n";
 	/*
 	 * IPv6
 	 */
-	this->server.sin6_family = AF_INET6;
+	server.sin6_family = AF_INET6;
 }
 
 int ics_server::ics_recv(int len, char* flag, int tries = 20){
@@ -93,16 +93,17 @@ int ics_server::ics_connect(char* address, int port)
 	/*
 	 * Uzyskujemy IP z char* address, w formie d:d:d:d:d:d:d:d
 	 */
-	int e = inet_pton(AF_INET6, address, (void*) &(this->server.sin6_addr));
+	int e = inet_pton(AF_INET6, address, (void*) &server.sin6_addr);
 	if(e <= 0){
 		if(e == 0)
 			throw "Not a valid IP address";
 		else
 			throw "AF not supported";
 	}
-	this->server.sin6_port = htons(port);
-	if(connect(this->sock, (struct sockaddr*) &(this->server), sizeof (this->server)) == -1)
+	server.sin6_port = htons(port);
+	if(connect(sock, (struct sockaddr*) &server, sizeof(server)) == -1)
 		throw "Error while connecting socket.\n";
+
 	int hs = ics_handshake();
 	if(hs < 0){
 		printf("Error code: %d", hs*(-1));
@@ -112,3 +113,10 @@ int ics_server::ics_connect(char* address, int port)
 	return 0;
 }
 
+int ics_server::ics_clist(){
+	return 0;
+}
+
+int ics_server::ics_disconnect(){
+	return 0;
+}
