@@ -113,8 +113,8 @@ int ics_server::ics_connect(char* address, int port)
 	return 0;
 }
 
-int ics_server::ics_clist(){
-	return 0;
+char* ics_server::ics_clist(){
+	return NULL;
 }
 
 int ics_server::ics_disconnect(){
