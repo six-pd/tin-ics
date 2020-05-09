@@ -33,7 +33,7 @@ void ClientHandling::callProperMethod()
 
 void ClientHandling::startConnection()
 {
-	sendAndCheckChellenge();
+	sendAndCheckChallenge();
 	askForSSIDAndCheck();
 	getClientName();
 
@@ -41,7 +41,7 @@ void ClientHandling::startConnection()
 	std::cout << "Client name: " << name << std::endl;
 }
 
-void ClientHandling::sendAndCheckChellenge()
+void ClientHandling::sendAndCheckChallenge()
 {
 	int challenge = rand() % 1000;	//TODO normalny challenge
 	
@@ -150,7 +150,7 @@ int ClientHandling::getIntArg(int argNum)	// TODO nie sprawdzam, czy liczba jest
 		++i;
 		if(i >= BUF_SIZE)
 		{
-			sequrityError();
+			securityError();
 			return -1;
 		}
 	}
@@ -162,7 +162,7 @@ int ClientHandling::getIntArg(int argNum)	// TODO nie sprawdzam, czy liczba jest
 		++i;
 		if(i >= BUF_SIZE)
 		{
-			sequrityError();
+			securityError();
 			return -1;
 		}
 	}
@@ -186,7 +186,7 @@ std::string ClientHandling::getStringArg(int argNum)
 		++i;
 		if(i >= BUF_SIZE)
 		{
-			sequrityError();
+			securityError();
 			return "";
 		}
 	}
@@ -198,7 +198,7 @@ std::string ClientHandling::getStringArg(int argNum)
 		++i;
 		if(i >= BUF_SIZE)
 		{
-			sequrityError();
+			securityError();
 			return "";
 		}
 	}
@@ -212,7 +212,7 @@ void ClientHandling::protocolError(int flagExpected)
 	undefinedBehaviorError = true;
 }
 
-void ClientHandling::sequrityError()
+void ClientHandling::securityError()
 {
 	std::cout << "Wrong sent data - possible threat" << std::endl;
 	// zrobic klientowi jakas krzywde

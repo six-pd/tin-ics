@@ -33,7 +33,7 @@ class ClientHandling
     
     // obsluga bledow
     void protocolError(int flagExpected);
-    void sequrityError();
+    void securityError();
     bool undefinedBehaviorError = false;
     void callProperMethod();    // decyduje ktora metode wywolac w zaleznosci od wiadomosci klienta
         // ponizsze trzy metody jak zostana wywolane, to przejmuja na chwile zarzadzenie sesja od handleClient
@@ -43,7 +43,7 @@ class ClientHandling
     void endConnection();
 
     // more specialized methods
-    void sendAndCheckChellenge();
+    void sendAndCheckChallenge();
     void askForSSIDAndCheck();
     void getClientName();
 public:

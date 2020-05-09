@@ -4,7 +4,7 @@ ics_server::ics_server()
 	/*
 	 * Tworzymy gniazdo
 	 */
-	sock = socket(AF_INET6, SOCK_DGRAM,0);
+	sock = socket(AF_INET6, SOCK_DGRAM, 0);
 	if(sock == -1)
 		throw "Failed to create IPv6 socket!\n";
 	/*
@@ -17,8 +17,7 @@ int ics_server::ics_recv(int len, std::string flag, int tries)
 {
 	char temp[len+1];
 	for(int i = 0;i++;i < tries){
-		if(recv(sock, temp, len, 0) > len)
-		{
+		if(recv(sock, temp, len, 0) > len){
 			send(sock, msg.c_str(), msg.length(), 0);
 			continue;
 		}
@@ -47,7 +46,7 @@ int ics_server::ics_handshake()
 	msg = CL_CONNECTION_REQ;
 	send(sock, msg.c_str(), msg.length(), 0);
 
-	if(ics_recv(3+CH_LEN, SRV_CHALLENGE_REQ) != 0)
+	if(ics_recv(3 + CH_LEN, SRV_CHALLENGE_REQ) != 0)
 		return -2;
 
 	msg = CL_CHALLENGE_RESP + ';';
@@ -87,7 +86,7 @@ int ics_server::ics_handshake()
 	std::string name = "nickname";
 	msg += name;
 
-	if(ics_recv(2, SRV_NAME_ACC)!= 0)
+	if(ics_recv(2, SRV_NAME_ACC) != 0)
 		return -9;
 	return 0;
 }
