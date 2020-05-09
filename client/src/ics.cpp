@@ -114,13 +114,8 @@ int ics_server::ics_connect(std::string address, int port)
 	return 0;
 }
 
-<<<<<<< HEAD
 std::string ics_server::ics_clist(){
-	return 0;
-=======
-char* ics_server::ics_clist(){
-	return NULL;
->>>>>>> 8ae91a2558cef840cd47d772fcce9420f6198f6e
+	return "";
 }
 
 int ics_server::ics_disconnect(){
