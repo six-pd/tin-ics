@@ -14,7 +14,7 @@ ics_server::ics_server()
 }
 
 int ics_server::ics_recv(int len, char* flag, int tries = 20){
-	char temp[BUF_SIZE];
+	char temp[len+1];
 	for(int i = 0;i++;i < tries){
 		if(recv(sock, temp, len, 0) != len){
 			send(sock, msg, strlen(msg), 0);
@@ -34,21 +34,22 @@ int ics_server::ics_recv(int len, char* flag, int tries = 20){
 int ics_server::ics_handshake()
 {	
 	//char ch[CH_LEN];
-	char* pass;
-	char* ssid;
+	std::string pass;
+	std::string ssid;
 	std::fstream ssid_file;
 
 	msg = CL_CONNECTION_REQ;
-	send(sock, msg, strlen(msg), 0);
+	send(sock, msg.c_str(), msg.length(), 0);
 
 	if(ics_recv(3+CH_LEN, SRV_CHALLENGE_REQ) != 0)
 		return -2;
 
 	strcpy(msg, CL_CHALLENGE_RESP);
-	msg = strcat(msg, ";\0");
+	msg += ";\0";
+
 	pass = "password";
 	//msg = strcat(msg, ics_auth(pass, ch));
-	send(sock, msg, strlen(msg), 0);
+	send(sock, msg.c_str(), msg.length(), 0);
 
 	if(ics_recv(4, SRV_CHALLENGE_ACC) != 0)
 		return -4;
@@ -57,14 +58,14 @@ int ics_server::ics_handshake()
 		return -3; //incorrect password
 	
 	strcpy(msg, CL_SSID_REQ);
-	msg = strcat(msg, ";\0");
+	msg += ";\0";
 
 	ssid = "\0";
 	ssid_file.open(strcat(dirpath, "ssid"));
 	if(!ssid_file.is_open())
 		return -5;
 	ssid_file >> ssid;
-	if(strlen(ssid) != 3)
+	if(ssid.length() != 3)
 		ssid = "0";
 
 	msg = strcat(msg, ssid);
@@ -79,21 +80,21 @@ int ics_server::ics_handshake()
 			return -7;
 	}
 	strcpy(msg, CL_NAME);
-	msg = strcat(msg, ";\0");
+	msg += ";\0";
 	
 	char* name = "nickname";
-	msg = strcat(msg, name);
+	msg += name;
 
 	if(ics_recv(2, SRV_NAME_ACC)!= 0)
 		return -9;
 	return 0;
 }
-int ics_server::ics_connect(char* address, int port)
+int ics_server::ics_connect(std::string address, int port)
 {
 	/*
 	 * Uzyskujemy IP z char* address, w formie d:d:d:d:d:d:d:d
 	 */
-	int e = inet_pton(AF_INET6, address, (void*) &server.sin6_addr);
+	int e = inet_pton(AF_INET6, address.c_str(), (void*) &server.sin6_addr);
 	if(e <= 0){
 		if(e == 0)
 			throw "Not a valid IP address";
@@ -113,7 +114,7 @@ int ics_server::ics_connect(char* address, int port)
 	return 0;
 }
 
-int ics_server::ics_clist(){
+std::string ics_server::ics_clist(){
 	return 0;
 }
 
