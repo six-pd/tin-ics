@@ -44,9 +44,9 @@ int  main(int argc, char **argv)
         {
             pthread_t newThread;
             int newSock = msgsock;
-            Client* newClient = new Client(msgsock);
+            ClientHandling* newClient = new ClientHandling(msgsock);
 
-            pthread_create(&newThread, NULL, (THREADFUNCPTR) &Client::handleClient, newClient);
+            pthread_create(&newThread, NULL, (THREADFUNCPTR) &ClientHandling::handleClient, newClient);
         }
     } while(true);
     

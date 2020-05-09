@@ -2,15 +2,15 @@
 #include <string.h>
 #include <time.h>
 
-std::vector<Client*> Client::clientsList;
+std::vector<ClientHandling*> ClientHandling::clientsList;
 
-Client::Client(int newSocket)
+ClientHandling::ClientHandling(int newSocket)
 {
 	mySocket = newSocket;
 	clientsList.push_back(this);
 }
 
-void Client::callProperMethod()
+void ClientHandling::callProperMethod()
 {
 	int msgFlag = getFlagFromMsg();
 	if(msgFlag == CL_CONNECTION_REQ)
@@ -30,7 +30,7 @@ void Client::callProperMethod()
 	}
 }
 
-void Client::startConnection()
+void ClientHandling::startConnection()
 {
 	sendAndCheckChellenge();
 	askForSSIDAndCheck();
@@ -40,7 +40,7 @@ void Client::startConnection()
 	std::cout << "Client name: " << name << std::endl;
 }
 
-void Client::sendAndCheckChellenge()
+void ClientHandling::sendAndCheckChellenge()
 {
 	int challenge = rand() % 1000;	//TODO normalny challenge
 	
@@ -59,7 +59,7 @@ void Client::sendAndCheckChellenge()
 	
 }
 
-void Client::askForSSIDAndCheck()
+void ClientHandling::askForSSIDAndCheck()
 {
 	if(!receiveData() || getFlagFromMsg() != CL_SSID_REQ)
 	{
@@ -81,7 +81,7 @@ void Client::askForSSIDAndCheck()
 	}
 }
 
-void Client::getClientName()
+void ClientHandling::getClientName()
 {
 	if(!receiveData() || getFlagFromMsg() != CL_NAME)
 	{
@@ -94,23 +94,23 @@ void Client::getClientName()
 }
 
 
-void Client::sendClientsList()
+void ClientHandling::sendClientsList()
 {
 
 }
 
-void Client::endConnection()
+void ClientHandling::endConnection()
 {
 
 }
 
-void Client::sendString(std::string s)
+void ClientHandling::sendString(std::string s)
 {
 	strcpy(bufOut, s.c_str());
 	write(mySocket, bufOut, 1024);
 }
 
-bool Client::receiveData()
+bool ClientHandling::receiveData()
 {
 	int rval;
 	memset(bufIn, 0, sizeof(bufIn));
@@ -133,12 +133,12 @@ bool Client::receiveData()
 		return true;
 }
 
-int Client::getFlagFromMsg()
+int ClientHandling::getFlagFromMsg()
 {
 	return getIntArg(0);
 }
 
-int Client::getIntArg(int argNum)	// TODO nie sprawdzam, czy liczba jest liczba
+int ClientHandling::getIntArg(int argNum)	// TODO nie sprawdzam, czy liczba jest liczba
 {
 	int i = 0;
 	int currentArg = 0;
@@ -174,7 +174,7 @@ int Client::getIntArg(int argNum)	// TODO nie sprawdzam, czy liczba jest liczba
 	return result;
 }
 
-std::string Client::getStringArg(int argNum)
+std::string ClientHandling::getStringArg(int argNum)
 {
 	int i = 0;
 	int currentArg = 0;
@@ -204,21 +204,21 @@ std::string Client::getStringArg(int argNum)
 	return targetArgument;
 }
 
-void Client::protocolError(int flagExpected)
+void ClientHandling::protocolError(int flagExpected)
 {
 	std::cout << "Protocol error, " << flagExpected << " with proper agruments expected. " << 
 			"Aborting sequence." << std::endl;
 	undefinedBehaviorError = true;
 }
 
-void Client::sequrityError()
+void ClientHandling::sequrityError()
 {
 	std::cout << "Wrong sent data - possible threat" << std::endl;
 	// zrobic klientowi jakas krzywde
 	undefinedBehaviorError = true;
 }
 
-void* Client::handleClient()
+void* ClientHandling::handleClient()
 {
 	std::cout << "In thread " << pthread_self() << std::endl;
 	

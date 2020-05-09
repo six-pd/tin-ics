@@ -13,21 +13,21 @@
 #include <string>
 #include "api.h"
 
-class Client
+class ClientHandling
 {
-    static std::vector<Client*> clientsList;
-    int mySocket;           // moj socket
+    static std::vector<ClientHandling*> clientsList;
+    int mySocket;           // socket przypisany do klienta
     std::string name;
     int ssid;
     char bufIn[BUF_SIZE];       // te dwa nie sa tutaj konieczne,
     char bufOut[BUF_SIZE];      // ale przydadza sie do obslugi bledow
                                 // BUF_SIZE jest na razie w api.h
-        
+    
     void sendString(std::string s);
     bool receiveData();     // zwraca true jesli nie ma zadnych bledow
     
     // operacje na bufIn
-    int getFlagFromMsg();   // pobiera flage z bufIn
+    int getFlagFromMsg();       // pobiera flage z bufIn; flaga jest intem
     int getIntArg(int argNum);  // zerowy argument to flaga
     std::string getStringArg(int argNum);
     
@@ -47,6 +47,6 @@ class Client
     void askForSSIDAndCheck();
     void getClientName();
 public:
-    Client(int newSocket);
+    ClientHandling(int newSocket);
     void* handleClient();   // wywoluje sie na poczatku, czeka na dane, wola callProperMethod
 };
