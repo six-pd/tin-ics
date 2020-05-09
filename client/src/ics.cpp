@@ -30,6 +30,7 @@ int ics_server::ics_recv(int len, std::string flag, int tries)
 		else
 		{
 			buf = temp + 3;
+			buf.pop_back(); //ends with ';'
 			return 0;
 		}
 	}
@@ -43,7 +44,7 @@ int ics_server::ics_handshake()
 	std::string ssid;
 	std::fstream ssid_file;
 
-	msg = CL_CONNECTION_REQ;
+	msg = CL_CONNECTION_REQ + ';';
 	send(sock, msg.c_str(), msg.length(), 0);
 
 	if(ics_recv(3 + CH_LEN, SRV_CHALLENGE_REQ) != 0)
@@ -51,8 +52,8 @@ int ics_server::ics_handshake()
 
 	msg = CL_CHALLENGE_RESP + ';';
 
-	pass = "password";
-	//msg = strcat(msg, ics_auth(pass, ch));
+	pass = "password;";
+	//msg+= ics_auth(pass, ch);
 	send(sock, msg.c_str(), msg.length(), 0);
 
 	if(ics_recv(4, SRV_CHALLENGE_ACC) != 0)
@@ -70,7 +71,7 @@ int ics_server::ics_handshake()
 	if(ssid.length() != 3)
 		ssid = "0";
 
-	msg = msg + ssid;
+	msg = msg + ssid + ';';
 	send(sock, msg.c_str(), msg.length(), 0);
 
 	if(ssid == "0"){
@@ -83,7 +84,7 @@ int ics_server::ics_handshake()
 	}
 	msg = CL_NAME + ';';
 	
-	std::string name = "nickname";
+	std::string name = "nickname" + ';';
 	msg += name;
 
 	if(ics_recv(2, SRV_NAME_ACC) != 0)
@@ -117,18 +118,19 @@ int ics_server::ics_connect(std::string address, int port)
 
 std::string ics_server::ics_clist(){
 	std::string clist;
-	msg = CL_LIST_REQ;
+	msg = CL_LIST_REQ + ';';
 	send(sock, msg.c_str(), msg.length(), 0);
 	if(ics_recv(512, SRV_LIST_RESP) != 0)
 		return "";
-	msg = CL_LIST_ACC; //czy to jest potrzebne
+	clist = buf;
+	msg = CL_LIST_ACC + ';'; //czy to jest potrzebne
 	send(sock, msg.c_str(), msg.length(), 0);
 	return clist;
 }
 
 int ics_server::ics_disconnect(){
 	std::ofstream ssid_file;
-	msg = CL_END_REQ;
+	msg = CL_END_REQ + ';';
 	send(sock, msg.c_str(), msg.length(), 0);
 	if(ics_recv(2, SRV_END_ACC) != 0)
 		return -1;
