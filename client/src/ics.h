@@ -61,16 +61,16 @@
 class ics_server 
 {
 	int sock;
-	char buf[BUF_SIZE];
-	char* msg; 
+	std::string buf[BUF_SIZE];
+	std::string msg; 
 	struct sockaddr_in6 server;
-	char* dirpath = ".ics/";	
+	std::string dirpath = ".ics/";	
 	
 	/*
 	 * Funkcja obslugujaca odbieranie komunikatow
 	 */
 
-	int ics_recv(int len, char* flag, int tries);
+	int ics_recv(int len, std::string flag, int tries);
 
 	/*
 	 * Funkcja zajmujaca sie autoryzacja oraz polaczeniem z serwerem.
@@ -78,18 +78,18 @@ class ics_server
 	int ics_handshake();
 
 
-	char* ics_auth(char* password, char* challenge);	
+	std::string ics_auth(std:string password, std::string challenge);	
 	
 public:
 	ics_server();
 	/*
 	 * Funkcja obslugujaca pierwsze polaczenie.
 	 */
-	int ics_connect(char* address, int port);
+	int ics_connect(std::string address, int port);
 	/*
 	 * Wyswietlanie listy klientow na serwerze
 	 */
-	char* ics_clist();
+	std::string ics_clist();
 	/*
 	 * Zakonczenie sparowania klient-serwer. Mozliwe jest tylo za zgoda uzytkownika, zwykle rozlaczenie nie zakonczy sesji klienta na serwerze.
 	 */
