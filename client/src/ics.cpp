@@ -13,18 +13,24 @@ ics_server::ics_server()
 	server.sin6_family = AF_INET6;
 }
 
-int ics_server::ics_recv(int len, char* flag, int tries = 20){
+int ics_server::ics_recv(int len, std::string flag, int tries)
+{
 	char temp[len+1];
 	for(int i = 0;i++;i < tries){
-		if(recv(sock, temp, len, 0) != len){
-			send(sock, msg, strlen(msg), 0);
+		if(recv(sock, temp, len, 0) != len)
+		{
+			send(sock, msg.c_str(), msg.length(), 0);
 			continue;
 		}
-		if(strncmp(temp, flag, 2) != 0){
-			send(sock, msg, strlen(msg), 0);
+		temp[len] = '\0';
+		if(strncmp(temp, flag.c_str(), 2) != 0)
+		{
+			send(sock, msg.c_str(), msg.length(), 0);
 			continue;
-		}else{
-			strcpy(buf, temp + 3);
+		}
+		else
+		{
+			buf = temp + 3;
 			return 0;
 		}
 	}
@@ -44,8 +50,7 @@ int ics_server::ics_handshake()
 	if(ics_recv(3+CH_LEN, SRV_CHALLENGE_REQ) != 0)
 		return -2;
 
-	strcpy(msg, CL_CHALLENGE_RESP);
-	msg += ";\0";
+	msg = CL_CHALLENGE_RESP + ';';
 
 	pass = "password";
 	//msg = strcat(msg, ics_auth(pass, ch));
@@ -54,35 +59,32 @@ int ics_server::ics_handshake()
 	if(ics_recv(4, SRV_CHALLENGE_ACC) != 0)
 		return -4;
 
-	if(strcmp(buf, "0") != 0)
+	if(buf == "0")
 		return -3; //incorrect password
 	
-	strcpy(msg, CL_SSID_REQ);
-	msg += ";\0";
+	msg = CL_SSID_REQ + ';';
 
-	ssid = "\0";
-	ssid_file.open(strcat(dirpath, "ssid"));
+	ssid_file.open(dirpath + "ssid");
 	if(!ssid_file.is_open())
 		return -5;
 	ssid_file >> ssid;
 	if(ssid.length() != 3)
 		ssid = "0";
 
-	msg = strcat(msg, ssid);
-	send(sock, msg, strlen(msg), 0);
+	msg = msg + ssid;
+	send(sock, msg.c_str(), msg.length(), 0);
 
 	if(ssid == "0"){
 		if(ics_recv(6, SRV_NEW_SSID) != 0)
 			return -6;
-		ssid_file.write(buf, 3);
+		ssid_file.write(buf.c_str(), 3);
 	}else{
 		if(ics_recv(2, SRV_SSID_ACC) != 0)
 			return -7;
 	}
-	strcpy(msg, CL_NAME);
-	msg += ";\0";
+	msg = CL_NAME + ';';
 	
-	char* name = "nickname";
+	std::string name = "nickname";
 	msg += name;
 
 	if(ics_recv(2, SRV_NAME_ACC)!= 0)

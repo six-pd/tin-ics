@@ -61,7 +61,7 @@
 class ics_server 
 {
 	int sock;
-	std::string buf[BUF_SIZE];
+	std::string buf;
 	std::string msg; 
 	struct sockaddr_in6 server;
 	std::string dirpath = ".ics/";	
@@ -70,7 +70,7 @@ class ics_server
 	 * Funkcja obslugujaca odbieranie komunikatow
 	 */
 
-	int ics_recv(int len, std::string flag, int tries);
+	int ics_recv(int len, std::string flag, int tries = 20);
 
 	/*
 	 * Funkcja zajmujaca sie autoryzacja oraz polaczeniem z serwerem.
@@ -78,7 +78,7 @@ class ics_server
 	int ics_handshake();
 
 
-	std::string ics_auth(std:string password, std::string challenge);	
+	std::string ics_auth(std::string password, std::string challenge);	
 	
 public:
 	ics_server();
