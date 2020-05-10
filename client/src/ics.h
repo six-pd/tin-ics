@@ -11,6 +11,7 @@
 #include <arpa/inet.h>
 #include <iostream>
 #include <fstream>
+#include <errno.h>
 
 /*
  * Header file for the ICS API.
@@ -64,7 +65,7 @@ class ics_server
 	int sock;
 	std::string buf;
 	std::string msg; 
-	struct sockaddr_in6 server;
+	struct sockaddr_in6 server, client;
 	std::string dirpath = ".ics/";	
 	std::string name, addr;
 	int port;	

@@ -11,13 +11,24 @@ ics_server::ics_server()
 	 * IPv6
 	 */
 	server.sin6_family = AF_INET6;
+	client.sin6_family = AF_INET6;
+	client.sin6_addr = in6addr_any;
+	client.sin6_port = 0;
+
+	if(bind(sock, (struct sockaddr*) &client, sizeof(client)) == -1)
+		throw "Failed to bind IPv6 socket!\n";
 }
 
 int ics_server::ics_recv(int len, std::string flag, int tries)
 {
 	char temp[len+1];
-	for(int i = 0;i++;i < tries){
-		if(recv(sock, temp, len, 0) > len){
+	for(int i = 0;i <= tries;++i){
+		int numbytes = recv(sock, temp, len, 0);
+		if (numbytes == -1){
+			std::cout << "Recv function error!" << errno << '\n';
+			return -2;
+		}
+		if(numbytes > len){
 			send(sock, msg.c_str(), msg.length(), 0);
 			continue;
 		}
