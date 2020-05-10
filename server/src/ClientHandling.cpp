@@ -15,7 +15,6 @@ ClientHandling::ClientHandling(int newSocket, struct sockaddr_in6 newAddress)
 
 void ClientHandling::callProperMethod()
 {
-	std::cout << "7" << std::endl;
 
 	int msgFlag = getFlagFromMsg();
 
@@ -40,7 +39,6 @@ void ClientHandling::callProperMethod()
 
 void ClientHandling::startConnection()
 {
-	std::cout << "9" << std::endl;
 
 	sendAndCheckChallenge();
 	askForSSIDAndCheck();
@@ -52,7 +50,6 @@ void ClientHandling::startConnection()
 
 void ClientHandling::sendAndCheckChallenge()
 {
-		std::cout << "1" << ssid << std::endl;
 
 	int challenge = rand() % 1000;	//TODO normalny challenge
 	
@@ -73,7 +70,6 @@ void ClientHandling::sendAndCheckChallenge()
 
 void ClientHandling::askForSSIDAndCheck()
 {
-		std::cout << "2" << ssid << std::endl;
 
 	if(!receiveData() || getFlagFromMsg() != CL_SSID_REQ)
 	{
@@ -97,7 +93,6 @@ void ClientHandling::askForSSIDAndCheck()
 
 void ClientHandling::getClientName()
 {
-		std::cout << "3" << ssid << std::endl;
 	
 	if(!receiveData() || getFlagFromMsg() != CL_NAME)
 	{
@@ -131,7 +126,6 @@ bool ClientHandling::receiveData()
 {
 
 	memset(bufIn, 0, sizeof(bufIn));
-	std::cout << "receiving" << std::endl;
 	int rval = recv(mySocket, bufIn, sizeof(bufIn), 0);
 	std::cout << "received. Data: " << bufIn << rval << std::endl;
    	if (rval == -1)
@@ -164,8 +158,6 @@ int ClientHandling::getIntArg(int argNum)	// TODO nie sprawdzam, czy liczba jest
 	int currentArg = 0;
 	while(currentArg != argNum && bufIn[i] != '\0')
 	{
-		std::cout << "yuckvajdbxsh" << std::endl;
-
 		if(bufIn[i] == ';')
 			++currentArg;
 		++i;
@@ -175,8 +167,7 @@ int ClientHandling::getIntArg(int argNum)	// TODO nie sprawdzam, czy liczba jest
 			return -1;
 		}
 	}
-	std::cout << i << std::endl;
-
+	
 	// teraz i wskazuje na pierwszy element szukanego argumentu
 	std::string targetArgument;
 	while(bufIn[i] != ';' && bufIn[i] != '\0')
@@ -189,7 +180,6 @@ int ClientHandling::getIntArg(int argNum)	// TODO nie sprawdzam, czy liczba jest
 			return -1;
 		}
 	}
-	std::cout << targetArgument << std::endl;
 
 	// mamy szukany argument jako string
 	int result = 0;
