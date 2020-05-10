@@ -91,28 +91,50 @@ int ics_server::ics_handshake()
 		return -9;
 	return 0;
 }
-int ics_server::ics_connect(std::string address, int port)
+int ics_server::ics_connect()
 {
 	/*
 	 * Uzyskujemy IP z char* address, w formie d:d:d:d:d:d:d:d
 	 */
-	int e = inet_pton(AF_INET6, address.c_str(), (void*) &server.sin6_addr);
+	int e = inet_pton(AF_INET6, this->addr.c_str(), (void*) &server.sin6_addr);
 	if(e <= 0){
-		if(e == 0)
-			throw "Not a valid IP address";
-		else
-			throw "AF not supported";
+		if(e == 0){
+			throw "Not a valid IP address\n";
+			return -1;
+		}
+		else{
+			throw "AF not supported\n";
+			return -2;
+		}
 	}
-	server.sin6_port = htons(port);
-	if(connect(sock, (struct sockaddr*) &server, sizeof(server)) == -1)
+	server.sin6_port = htons(this->port);
+	if(connect(sock, (struct sockaddr*) &server, sizeof(server)) == -1){
 		throw "Error while connecting socket.\n";
+		return -3;
+	}
 
 	int hs = ics_handshake();
 	if(hs < 0){
-		printf("Error code: %d", hs*(-1));
+		printf("Error code: %d\n", hs*(-1));
 		throw "Handshake error";
 	}
 
+	return 0;
+}
+
+int ics_server::ics_getinfo(){
+	int p;
+	std::string a;
+	std::cout << "Input server IP(ICS uses IPv6!):\n";
+	std::cin >> a;
+	std::cout << "Specify server port:\n";
+	std::cin >> p;
+	if (p > 65535 || p <= 0){
+		std::cout << "Invalid port number!\n";
+		return -1;
+	}
+	this->addr = a;
+	this->port = p;
 	return 0;
 }
 

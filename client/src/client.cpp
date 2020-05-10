@@ -9,46 +9,32 @@
 
 #include "ics.h"
 
-#define DATA "Half a league, half a league . . ."
+ics_server ics_serv;
 
-int main(int argc, char *argv[])
-{
-    int sock;
-    struct sockaddr_in6 server;
-    struct hostent *hp;
-    char buf[1024];
+int main(){
+	int cont = 0;
+	std::cout << "Welcome to ICS!\n";
 
-    /* Create socket. */
-    sock = socket( AF_INET6, SOCK_STREAM, 0 );
-    if (sock == -1) {
-        perror("opening stream socket");
-        exit(1);
-    }
+	for(;;){
+		cont = ics_serv.ics_getinfo();
+		if (cont < 0)
+			continue;
+		try{
+			cont = ics_serv.ics_connect();
+		}catch(const char* err){
+			std::cout << "While connecting: " << err << '\n';
+			continue;
+		}
+		if (cont == 0)
+			break;
+		//std::cout << cont << '\n';
 
-    /* uzyskajmy adres IP z nazwy . */
-    server.sin6_family = AF_INET6;
-    hp = gethostbyname2(argv[1], AF_INET6 );
+	}
+	std::cout <<"Connection successful.\n";
 
-/* hostbyname zwraca strukture zawierajaca adres danego hosta */
-    if (hp == (struct hostent *) 0) {
-        fprintf(stderr, "%s: unknown host\n", argv[1]);
-        exit(2);
-    }
-    memcpy((char *) &server.sin6_addr, (char *) hp->h_addr,
-        hp->h_length);
-    server.sin6_port = htons(atoi( argv[2]));
-    if (connect(sock, (struct sockaddr *) &server, sizeof server)
-        == -1) {
-        perror("connecting stream socket");
-        exit(1);
-    }
-    if (write( sock, DATA, sizeof DATA ) == -1)
+	std::cout << "Client list:\n" << ics_serv.ics_clist() << '\n';
 
-        perror("writing on stream socket");
-    sleep(5);
-    if (write( sock, DATA, sizeof DATA ) == -1)
+	ics_serv.ics_disconnect();
 
-        perror("writing on stream socket");
-
-    close(sock);
-    exit(0);}
+	return 0;
+}
