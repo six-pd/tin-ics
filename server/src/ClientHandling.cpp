@@ -15,7 +15,12 @@ ClientHandling::ClientHandling(int newSocket, struct sockaddr_in6 newAddress)
 
 void ClientHandling::callProperMethod()
 {
+	std::cout << "7" << std::endl;
+
 	int msgFlag = getFlagFromMsg();
+
+	std::cout << msgFlag << std::endl;
+
 	if(msgFlag == CL_CONNECTION_REQ)
 	{
 		startConnection();
@@ -35,6 +40,8 @@ void ClientHandling::callProperMethod()
 
 void ClientHandling::startConnection()
 {
+	std::cout << "9" << std::endl;
+
 	sendAndCheckChallenge();
 	askForSSIDAndCheck();
 	getClientName();
@@ -45,6 +52,8 @@ void ClientHandling::startConnection()
 
 void ClientHandling::sendAndCheckChallenge()
 {
+		std::cout << "1" << ssid << std::endl;
+
 	int challenge = rand() % 1000;	//TODO normalny challenge
 	
 	sendString(std::to_string(SRV_CHALLENGE_REQ)+';'+std::to_string(challenge)+';');
@@ -64,6 +73,8 @@ void ClientHandling::sendAndCheckChallenge()
 
 void ClientHandling::askForSSIDAndCheck()
 {
+		std::cout << "2" << ssid << std::endl;
+
 	if(!receiveData() || getFlagFromMsg() != CL_SSID_REQ)
 	{
 		protocolError(CL_SSID_REQ);
@@ -86,6 +97,8 @@ void ClientHandling::askForSSIDAndCheck()
 
 void ClientHandling::getClientName()
 {
+		std::cout << "3" << ssid << std::endl;
+	
 	if(!receiveData() || getFlagFromMsg() != CL_NAME)
 	{
 		protocolError(CL_NAME);
@@ -118,7 +131,9 @@ bool ClientHandling::receiveData()
 {
 
 	memset(bufIn, 0, sizeof(bufIn));
+	std::cout << "receiving" << std::endl;
 	int rval = recv(mySocket, bufIn, sizeof(bufIn), 0);
+	std::cout << "received. Data: " << bufIn << rval << std::endl;
    	if (rval == -1)
     {
 		std::cout << "Error reading stream message" << std::endl;
@@ -147,8 +162,10 @@ int ClientHandling::getIntArg(int argNum)	// TODO nie sprawdzam, czy liczba jest
 {
 	int i = 0;
 	int currentArg = 0;
-	while(currentArg != argNum && bufIn[i] == '\0')
+	while(currentArg != argNum && bufIn[i] != '\0')
 	{
+		std::cout << "yuckvajdbxsh" << std::endl;
+
 		if(bufIn[i] == ';')
 			++currentArg;
 		++i;
@@ -158,6 +175,8 @@ int ClientHandling::getIntArg(int argNum)	// TODO nie sprawdzam, czy liczba jest
 			return -1;
 		}
 	}
+	std::cout << i << std::endl;
+
 	// teraz i wskazuje na pierwszy element szukanego argumentu
 	std::string targetArgument;
 	while(bufIn[i] != ';' && bufIn[i] != '\0')
@@ -170,6 +189,8 @@ int ClientHandling::getIntArg(int argNum)	// TODO nie sprawdzam, czy liczba jest
 			return -1;
 		}
 	}
+	std::cout << targetArgument << std::endl;
+
 	// mamy szukany argument jako string
 	int result = 0;
 	for(i = 0; i < targetArgument.size(); ++i)
@@ -240,4 +261,14 @@ void* ClientHandling::handleClient()
 	delete this;	
 	// ale znalazlem w internetach, ze tak mozna i nie widze innej opcji na usuwanie Client
 	pthread_exit(NULL);
+}
+
+bool ClientHandling::findAddrInClients(struct sockaddr_in6 a)
+{
+	for(auto i: clientsList)
+	{
+		if((*((struct sockaddr_in*)&a)).sin_addr.s_addr == (*((struct sockaddr_in*)&(i->clientAddress))).sin_addr.s_addr)
+			return true;
+	}
+	return false;
 }

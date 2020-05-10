@@ -11,7 +11,7 @@ int  main(int argc, char **argv)
     struct sockaddr_in6 serverAddr, clientAddr;
     char buf[1024];
 
-    sock = socket(AF_INET6, SOCK_STREAM, 0);
+    sock = socket(AF_INET6, SOCK_DGRAM, 0);
     if (sock == -1) {
        std::cout << "opening stream socket" << std::endl;
         return -1;
@@ -39,9 +39,12 @@ int  main(int argc, char **argv)
     
     do {
         int status = recvfrom(sock, buf, 1024, MSG_PEEK, (struct sockaddr*)&clientAddr, &length);
+        if(ClientHandling::findAddrInClients(clientAddr))
+            continue;
+            
         if (status < 0 )
              std::cout << "Error on connecting" << " " << errno << std::endl;
-        else 
+        else
         {
             pthread_t newThread;
             int newSock = sock;

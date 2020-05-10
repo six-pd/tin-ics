@@ -51,4 +51,6 @@ class ClientHandling
 public:
     ClientHandling(int newSocket, struct sockaddr_in6 newAddress);
     void* handleClient();   // wywoluje sie na poczatku, czeka na dane, wola callProperMethod
+
+    static bool findAddrInClients(struct sockaddr_in6 a);
 };
