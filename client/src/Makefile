@@ -1,4 +1,4 @@
-CF = #-Wall -g
+CF = -std=c++11 #-Wall -g
 
 all: client.o ics.o
 	g++ client.o ics.o -o client.out
