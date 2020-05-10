@@ -4,9 +4,10 @@
 
 std::vector<ClientHandling*> ClientHandling::clientsList;
 
-ClientHandling::ClientHandling(int newSocket)
+ClientHandling::ClientHandling(int newSocket, struct sockaddr_in6 newAddress)
 {
 	mySocket = newSocket;
+	clientAddress = newAddress;
 	clientsList.push_back(this);
 }
 
@@ -108,7 +109,7 @@ void ClientHandling::endConnection()
 void ClientHandling::sendString(std::string s)
 {
 	strcpy(bufOut, s.c_str());
-	write(mySocket, bufOut, 1024);
+	sendto(mySocket, bufOut, sizeof(bufOut), 0, &clientAddress, sizeof(clientAddress));
 }
 
 bool ClientHandling::receiveData()

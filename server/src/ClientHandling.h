@@ -16,7 +16,9 @@
 class ClientHandling
 {
     static std::vector<ClientHandling*> clientsList;
-    int mySocket;           // socket przypisany do klienta
+
+    int mySocket;
+    struct sockaddr_in6 clientAddress;           // socket przypisany do klienta
     std::string name;
     int ssid;
     char bufIn[BUF_SIZE];       // te dwa nie sa tutaj konieczne,
@@ -47,6 +49,6 @@ class ClientHandling
     void askForSSIDAndCheck();
     void getClientName();
 public:
-    ClientHandling(int newSocket);
+    ClientHandling(int newSocket, struct sockaddr_in6 newAddress);
     void* handleClient();   // wywoluje sie na poczatku, czeka na dane, wola callProperMethod
 };
