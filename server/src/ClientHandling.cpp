@@ -9,6 +9,7 @@ ClientHandling::ClientHandling(int newSocket, struct sockaddr_in6 newAddress)
 	mySocket = newSocket;
 	clientAddress = newAddress;
 	clientsList.push_back(this);
+	connect(mySocket, (struct sockaddr*)&clientAddress, sizeof(clientAddress));
 }
 
 
@@ -109,14 +110,16 @@ void ClientHandling::endConnection()
 void ClientHandling::sendString(std::string s)
 {
 	strcpy(bufOut, s.c_str());
-	sendto(mySocket, bufOut, sizeof(bufOut), 0, &clientAddress, sizeof(clientAddress));
+	send(mySocket, bufOut, 1024, 0);
+	//write(mySocket, bufOut, 1024);
 }
 
 bool ClientHandling::receiveData()
 {
-	int rval;
+
 	memset(bufIn, 0, sizeof(bufIn));
-   	if ((rval = read(mySocket, bufIn, 1024)) == -1)
+	int rval = recv(mySocket, bufIn, sizeof(bufIn), 0);
+   	if (rval == -1)
     {
 		std::cout << "Error reading stream message" << std::endl;
 		return false;

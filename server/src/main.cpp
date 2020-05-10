@@ -7,8 +7,8 @@ int  main(int argc, char **argv)
 
     int sock;
     socklen_t length;
-    struct sockaddr_in6 server;
-    int msgsock;
+    struct sockaddr_in6 serverAddr, clientAddr;
+    char buf[1024];
 
     sock = socket(AF_INET6, SOCK_STREAM, 0);
     if (sock == -1) {
@@ -17,34 +17,34 @@ int  main(int argc, char **argv)
     }
 /* dowiaz adres do gniazda */
 
-    server.sin6_family = AF_INET6;
-    server.sin6_addr = in6addr_any;
-    server.sin6_port = 0;
-    if (bind(sock, (struct sockaddr *) &server, sizeof server)
+    serverAddr.sin6_family = AF_INET6;
+    serverAddr.sin6_addr = in6addr_any;
+    serverAddr.sin6_port = 0;
+    if (bind(sock, (struct sockaddr *) &serverAddr, sizeof serverAddr)
         == -1) {
         std::cout << "binding stream socket" << std::endl;
         return -1;
     }
     /* wydrukuj na konsoli przydzielony port */
-    length = sizeof( server);
-    if (getsockname(sock,(struct sockaddr *) &server, &length)
+    length = sizeof( serverAddr);
+    if (getsockname(sock,(struct sockaddr *) &serverAddr, &length)
          == -1) {
         std::cout << "getting socket name" << std::endl;
         return -1;
     }
-    std::cout << "Socket port " << ntohs(server.sin6_port) << std::endl;
+    std::cout << "Socket port " << ntohs(serverAddr.sin6_port) << std::endl;
     /* zacznij przyjmowa� polaczenia... */
     listen(sock, 5);
     
     do {
-        msgsock = accept(sock, (struct sockaddr *) 0,(socklen_t *) 0);
-        if (msgsock == -1 )
-             std::cout << "Error on accepting" << std::endl;
+        int status = recvfrom(sock, buf, 1024, MSG_PEEK, (struct sockaddr*)&clientAddr, &length);
+        if (status == -1 )
+             std::cout << "Error on connecting" << std::endl;
         else 
         {
             pthread_t newThread;
-            int newSock = msgsock;
-            ClientHandling* newClient = new ClientHandling(msgsock);
+            int newSock = sock;
+            ClientHandling* newClient = new ClientHandling(newSock, clientAddr);
 
             pthread_create(&newThread, NULL, (THREADFUNCPTR) &ClientHandling::handleClient, newClient);
         }
