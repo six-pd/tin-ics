@@ -1,4 +1,5 @@
 #include"ClientHandling.h"
+#include<errno.h>
 
 int  main(int argc, char **argv)
 {
@@ -38,8 +39,8 @@ int  main(int argc, char **argv)
     
     do {
         int status = recvfrom(sock, buf, 1024, MSG_PEEK, (struct sockaddr*)&clientAddr, &length);
-        if (status == -1 )
-             std::cout << "Error on connecting" << std::endl;
+        if (status < 0 )
+             std::cout << "Error on connecting" << " " << errno << std::endl;
         else 
         {
             pthread_t newThread;
