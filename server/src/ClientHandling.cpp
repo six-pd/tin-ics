@@ -27,16 +27,18 @@ void ClientHandling::callProperMethod()
 		startConnection();
 		return;
 	}
-	if(msgFlag == CL_END_REQ)
+	else if(msgFlag == CL_END_REQ)
 	{
 		endConnection();
 		return;
 	}
-	if(msgFlag == CL_LIST_REQ)
+	else if(msgFlag == CL_LIST_REQ)
 	{
-	sendClientsList();
+		sendClientsList();
 		return;
 	}
+	else 
+		disconnectRequested = true;
 }
 
 void ClientHandling::startConnection()
