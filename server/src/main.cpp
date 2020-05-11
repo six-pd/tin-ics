@@ -1,8 +1,11 @@
 #include"ClientHandling.h"
 #include<errno.h>
 
+pthread_mutex_t mutex;
+
 int  main(int argc, char **argv)
 {
+    mutex = PTHREAD_MUTEX_INITIALIZER;
     typedef void * (*THREADFUNCPTR)(void *);
    	srand(time(NULL));
 
@@ -38,7 +41,9 @@ int  main(int argc, char **argv)
     //listen(sock, 5);
     
     do {
+        pthread_mutex_lock(&mutex);
         int status = recvfrom(sock, buf, 1024, MSG_PEEK, (struct sockaddr*)&clientAddr, &length);
+        pthread_mutex_unlock(&mutex);
         if(ClientHandling::findAddrInClients(clientAddr))
             continue;
             

@@ -3,6 +3,8 @@
 #include <string>
 #include <time.h>
 
+extern pthread_mutex_t mutex;
+
 std::vector<ClientHandling*> ClientHandling::clientsList;
 
 ClientHandling::ClientHandling(int newSocket, struct sockaddr_in6 newAddress)
@@ -115,6 +117,7 @@ void ClientHandling::sendClientsList()
 		s += a->name;
 		s += ';';
 	}
+	std::cout << s << std::endl;
 	sendString(s);
 	
 	if(!receiveData() || getFlagFromMsg() != CL_LIST_ACC)
@@ -145,7 +148,9 @@ bool ClientHandling::receiveData()
 {
 
 	memset(bufIn, 0, sizeof(bufIn));
+	pthread_mutex_lock(&mutex);
 	int rval = recv(mySocket, bufIn, sizeof(bufIn), 0);
+	pthread_mutex_unlock(&mutex);
 	std::cout << "received data: " << bufIn << ". Size: "<< rval << std::endl;
    	if (rval == -1)
     {
