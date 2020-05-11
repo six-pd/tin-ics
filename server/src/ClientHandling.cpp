@@ -50,7 +50,7 @@ void ClientHandling::startConnection()
 void ClientHandling::sendAndCheckChallenge()
 {
 
-	int challenge = rand() % 1000;	//TODO normalny challenge
+	int challenge = (rand() % 900) + 100;	//TODO normalny challenge
 	
 	sendString('0'+std::to_string(SRV_CHALLENGE_REQ)+';'+std::to_string(challenge)+';');
 
