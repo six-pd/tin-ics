@@ -21,9 +21,11 @@ class ClientHandling
     struct sockaddr_in6 clientAddress;           // socket przypisany do klienta
     std::string name;
     int ssid;
+    bool disconnectRequested;
     char bufIn[BUF_SIZE];       // te dwa nie sa tutaj konieczne,
     char bufOut[BUF_SIZE];      // ale przydadza sie do obslugi bledow
                                 // BUF_SIZE jest na razie w api.h
+
     
     void sendString(std::string s);
     bool receiveData();     // zwraca true jesli nie ma zadnych bledow

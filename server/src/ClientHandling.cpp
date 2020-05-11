@@ -1,5 +1,6 @@
 #include "ClientHandling.h"
 #include <string.h>
+#include <string>
 #include <time.h>
 
 std::vector<ClientHandling*> ClientHandling::clientsList;
@@ -9,6 +10,7 @@ ClientHandling::ClientHandling(int newSocket, struct sockaddr_in6 newAddress)
 	mySocket = newSocket;
 	clientAddress = newAddress;
 	clientsList.push_back(this);
+	disconnectRequested = false;
 	connect(mySocket, (struct sockaddr*)&clientAddress, sizeof(clientAddress));
 }
 
@@ -104,12 +106,27 @@ void ClientHandling::getClientName()
 
 void ClientHandling::sendClientsList()
 {
-
+	std::string s = std::to_string(SRV_LIST_RESP);
+	for (auto a: clientsList)
+	{
+		s += a->name;
+		s += ';';
+	}
+	sendString(s);
+	
+	if(!receiveData() || getFlagFromMsg() != CL_LIST_ACC)
+	{
+		protocolError(CL_LIST_ACC);
+		return;
+	}
+	return;
 }
 
 void ClientHandling::endConnection()
 {
-
+	sendString(std::to_string(SRV_END_ACC));
+	disconnectRequested = true;
+	return;
 }
 
 void ClientHandling::sendString(std::string s)
@@ -238,7 +255,7 @@ void* ClientHandling::handleClient()
     int rval = 0;
 
     do{
-		if(receiveData())
+		if(receiveData() && !disconnectRequested)
 			callProperMethod();
 		else
 			break;
