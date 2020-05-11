@@ -264,12 +264,12 @@ void* ClientHandling::handleClient()
     int rval = 0;
 
     do{
-		if(receiveData() && !disconnectRequested)
+		if(receiveData())
 			callProperMethod();
 		else
 			break;
-	}while(true);
-	close(mySocket);
+	}while(!disconnectRequested);
+	std::cout << "kocze watek" << std::endl;
 	// to jest turbo dziwne:
 	delete this;	
 	// ale znalazlem w internetach, ze tak mozna i nie widze innej opcji na usuwanie Client
