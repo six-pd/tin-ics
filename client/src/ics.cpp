@@ -55,16 +55,19 @@ int ics_server::ics_handshake()
 	std::string ssid;
 	std::fstream ssid_file;
 
-	msg = CL_CONNECTION_REQ + ';';
+	msg = CL_CONNECTION_REQ;
+	msg.append(";");
+	//std::cout << msg << '\n';
 	send(sock, msg.c_str(), msg.length(), 0);
 
 	if(ics_recv(3 + CH_LEN, SRV_CHALLENGE_REQ) != 0)
 		return -2;
 
-	msg = CL_CHALLENGE_RESP + ';';
+	msg = CL_CHALLENGE_RESP;
+	msg.append(";");
 
 	pass = "password;";
-	//msg+= ics_auth(pass, ch);
+	msg.append(buf);
 	send(sock, msg.c_str(), msg.length(), 0);
 
 	if(ics_recv(4, SRV_CHALLENGE_ACC) != 0)
@@ -73,7 +76,8 @@ int ics_server::ics_handshake()
 	if(buf == "0")
 		return -3; //incorrect password
 	
-	msg = CL_SSID_REQ + ';';
+	msg = CL_SSID_REQ;
+	msg.append(";");
 
 	ssid_file.open(dirpath + "ssid");
 	if(!ssid_file.is_open())
@@ -82,7 +86,8 @@ int ics_server::ics_handshake()
 	if(ssid.length() != 3)
 		ssid = "0";
 
-	msg = msg + ssid + ';';
+	msg.append(ssid);
+	msg.append(";");
 	send(sock, msg.c_str(), msg.length(), 0);
 
 	if(ssid == "0"){
@@ -93,10 +98,12 @@ int ics_server::ics_handshake()
 		if(ics_recv(2, SRV_SSID_ACC) != 0)
 			return -7;
 	}
-	msg = CL_NAME + ';';
+	msg = CL_NAME;
+	msg.append(";");
 	
-	std::string name = "nickname" + ';';
-	msg += name;
+	std::string name = "nickname";
+	name.append(";");
+	msg.append(";");
 
 	if(ics_recv(2, SRV_NAME_ACC) != 0)
 		return -9;
@@ -151,19 +158,22 @@ int ics_server::ics_getinfo(){
 
 std::string ics_server::ics_clist(){
 	std::string clist;
-	msg = CL_LIST_REQ + ';';
+	msg = CL_LIST_REQ;
+	msg.append(";");
 	send(sock, msg.c_str(), msg.length(), 0);
 	if(ics_recv(512, SRV_LIST_RESP) != 0)
 		return "";
 	clist = buf;
-	msg = CL_LIST_ACC + ';'; //czy to jest potrzebne
+	msg = CL_LIST_ACC;
+       msg.append(";");       //czy to jest potrzebne
 	send(sock, msg.c_str(), msg.length(), 0);
 	return clist;
 }
 
 int ics_server::ics_disconnect(){
 	std::ofstream ssid_file;
-	msg = CL_END_REQ + ';';
+	msg = CL_END_REQ;
+	msg.append(";");
 	send(sock, msg.c_str(), msg.length(), 0);
 	if(ics_recv(2, SRV_END_ACC) != 0)
 		return -1;
