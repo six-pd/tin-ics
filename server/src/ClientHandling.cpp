@@ -54,7 +54,7 @@ void ClientHandling::sendAndCheckChallenge()
 	
 	sendString('0'+std::to_string(SRV_CHALLENGE_REQ)+';'+std::to_string(challenge)+';');
 
-	std::cout << butIn << std::endl;
+	std::cout << bufIn << std::endl;
 	if(!receiveData() || getFlagFromMsg() != CL_CHALLENGE_RESP)
 	{
 		protocolError(CL_CHALLENGE_RESP);
