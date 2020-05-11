@@ -139,8 +139,9 @@ void ClientHandling::sendString(std::string s)
 {
 	strcpy(bufOut, s.c_str());
 	std::cout << "bufOut: " << bufOut << std::endl; 
+	pthread_mutex_lock(&mutex);
 	std::cout << "sendAmount: " << sendto(mySocket, bufOut, sizeof(bufOut), 0, (struct sockaddr*)&clientAddress, sizeof(clientAddress)) << std::endl;
-	
+	pthread_mutex_unlock(&mutex);
 	//write(mySocket, bufOut, 1024);
 }
 
