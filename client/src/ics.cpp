@@ -107,6 +107,8 @@ int ics_server::ics_handshake()
 	name.append(";");
 	msg.append(";");
 
+	send(sock, msg.c_str(), msg.length(), 0);
+	
 	if(ics_recv(3, SRV_NAME_ACC) != 0)
 		return -9;
 	return 0;
