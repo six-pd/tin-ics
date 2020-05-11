@@ -35,7 +35,7 @@ int  main(int argc, char **argv)
     }
     std::cout << "Socket port " << ntohs(serverAddr.sin6_port) << std::endl;
     /* zacznij przyjmowa� polaczenia... */
-    listen(sock, 5);
+    //listen(sock, 5);
     
     do {
         int status = recvfrom(sock, buf, 1024, MSG_PEEK, (struct sockaddr*)&clientAddr, &length);
