@@ -15,3 +15,5 @@ clean:
 
 run:
 	./server.out
+
+reset: clean all

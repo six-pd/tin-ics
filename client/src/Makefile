@@ -11,3 +11,8 @@ ics.o: ics.cpp ics.h
 
 clean:
 	rm *.out *.o
+
+run:
+	./client.out
+
+reset: clean all
