@@ -103,7 +103,7 @@ int ics_server::ics_handshake()
 	msg = CL_NAME;
 	msg.append(";");
 	
-	std::string name = "nickname";
+	std::string name = "nick";
 	name.append(";");
 	msg.append(name);
 
