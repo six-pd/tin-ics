@@ -272,6 +272,7 @@ void* ClientHandling::handleClient()
 	}while(!disconnectRequested);
 	std::cout << "kocze watek" << std::endl;
 	removeFromClientsList();
+	std::cout << clientsList[0]->name << std::endl;
 	// to jest turbo dziwne:
 	delete this;
 	// ale znalazlem w internetach, ze tak mozna i nie widze innej opcji na usuwanie Client
@@ -290,5 +291,17 @@ bool ClientHandling::findAddrInClients(struct sockaddr_in6 a)
 
 void ClientHandling::removeFromClientsList()
 {
+	for (auto it = clientsList.begin(); it != clientsList.end(); ) {
+        if ((*it)->name == name){
+            clientsList.erase(it);
+        }
+    }
+	/*int i = 0;
+	for(; i < clientsList.size(); ++i)
+	{
+		if(clientsList[i] == this)
+		std::cout  << "mam " << i << std::endl;
+	}
 	clientsList.erase(std::find(clientsList.begin(), clientsList.end(), this));
+	clientsList.*/
 }
