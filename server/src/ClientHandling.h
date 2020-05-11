@@ -19,6 +19,7 @@ class ClientHandling
 
     int mySocket;
     struct sockaddr_in6 clientAddress;           // socket przypisany do klienta
+    socklen_t clientAddressLen;
     std::string name;
     int ssid;
     bool disconnectRequested;

@@ -12,6 +12,7 @@ ClientHandling::ClientHandling(int newSocket, struct sockaddr_in6 newAddress)
 {
 	mySocket = newSocket;
 	clientAddress = newAddress;
+	clientAddressLen = sizeof(clientAddress);
 	clientsList.push_back(this);
 	disconnectRequested = false;
 	//connect(mySocket, (struct sockaddr*)&clientAddress, sizeof(clientAddress));
@@ -149,20 +150,22 @@ void ClientHandling::sendString(std::string s)
 
 bool ClientHandling::receiveData()
 {
-	socklen_t length;
+	socklen_t len;
 	struct sockaddr_in6 newAddress;
+	len = sizeof(newAddress);
+	int rval;
 	memset(bufIn, 0, sizeof(bufIn));
 	pthread_mutex_lock(&mutex);
-	int rval = recvfrom(mySocket, bufIn, sizeof(bufIn), MSG_PEEK, (struct sockaddr*)&newAddress, &length);
+	recvfrom(mySocket, bufIn, sizeof(bufIn), MSG_PEEK, (struct sockaddr*)&newAddress, &len);
 	if((*((struct sockaddr_in*)&newAddress)).sin_addr.s_addr == (*((struct sockaddr_in*)&clientAddress)).sin_addr.s_addr)
 	{
-		recvfrom(mySocket, bufIn, sizeof(bufIn), 0, (struct sockaddr*)&clientAddress, &length);
+		rval = recvfrom(mySocket, bufIn, sizeof(bufIn), 0, (struct sockaddr*)&clientAddress, &clientAddressLen);
 	}
 	pthread_mutex_unlock(&mutex);
 	std::cout << "received data: " << bufIn << ". Size: "<< rval << std::endl;
    	if (rval == -1)
     {
-		std::cout << "Error reading stream message" << std::endl;
+		std::cout << "Error reading stream message " << errno << std::endl;
 		return false;
 	}
     else if (rval == 0)
