@@ -61,7 +61,7 @@ int ics_server::ics_handshake()
 	//std::cout << msg << '\n';
 	send(sock, msg.c_str(), msg.length(), 0);
 
-	if(ics_recv(3 + CH_LEN, SRV_CHALLENGE_REQ) != 0)
+	if(ics_recv(3 + CH_LEN + 1, SRV_CHALLENGE_REQ) != 0)
 		return -2;
 
 	msg = CL_CHALLENGE_RESP;
@@ -71,7 +71,7 @@ int ics_server::ics_handshake()
 	msg.append(buf);
 	send(sock, msg.c_str(), msg.length(), 0);
 
-	if(ics_recv(4, SRV_CHALLENGE_ACC) != 0)
+	if(ics_recv(5, SRV_CHALLENGE_ACC) != 0)
 		return -4;
 
 	if(buf == "0")
@@ -92,11 +92,11 @@ int ics_server::ics_handshake()
 	send(sock, msg.c_str(), msg.length(), 0);
 
 	if(ssid == "0"){
-		if(ics_recv(6, SRV_NEW_SSID) != 0)
+		if(ics_recv(7, SRV_NEW_SSID) != 0)
 			return -6;
 		ssid_file.write(buf.c_str(), 3);
 	}else{
-		if(ics_recv(2, SRV_SSID_ACC) != 0)
+		if(ics_recv(3, SRV_SSID_ACC) != 0)
 			return -7;
 	}
 	msg = CL_NAME;
@@ -106,7 +106,7 @@ int ics_server::ics_handshake()
 	name.append(";");
 	msg.append(";");
 
-	if(ics_recv(2, SRV_NAME_ACC) != 0)
+	if(ics_recv(3, SRV_NAME_ACC) != 0)
 		return -9;
 	return 0;
 }
@@ -176,7 +176,7 @@ int ics_server::ics_disconnect(){
 	msg = CL_END_REQ;
 	msg.append(";");
 	send(sock, msg.c_str(), msg.length(), 0);
-	if(ics_recv(2, SRV_END_ACC) != 0)
+	if(ics_recv(3, SRV_END_ACC) != 0)
 		return -1;
 	ssid_file.open(dirpath + "ssid", std::ofstream::out | std::ofstream::trunc); // Czyszczenie pliku ./.ics/ssid
 	ssid_file.close();
