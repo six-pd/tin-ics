@@ -111,13 +111,12 @@ void ClientHandling::getClientName()
 
 void ClientHandling::sendClientsList()
 {
-	std::string s = std::to_string(SRV_LIST_RESP);
+	std::string s = std::to_string(SRV_LIST_RESP) + ';';
 	for (auto a: clientsList)
 	{
 		s += a->name;
 		s += ';';
 	}
-	std::cout << s << std::endl;
 	sendString(s);
 	
 	if(!receiveData() || getFlagFromMsg() != CL_LIST_ACC)
