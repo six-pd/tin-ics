@@ -75,7 +75,7 @@ int ics_server::ics_handshake()
 	if(ics_recv(5, SRV_CHALLENGE_ACC) != 0)
 		return -4;
 
-	if(buf == "0")
+	if(buf != "0")
 		return -3; //incorrect password
 	
 	msg = CL_SSID_REQ;
