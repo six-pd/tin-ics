@@ -50,6 +50,8 @@ class ClientHandling
     void sendAndCheckChallenge();
     void askForSSIDAndCheck();
     void getClientName();
+
+    void removeFromClientsList();
 public:
     ClientHandling(int newSocket, struct sockaddr_in6 newAddress);
     void* handleClient();   // wywoluje sie na poczatku, czeka na dane, wola callProperMethod

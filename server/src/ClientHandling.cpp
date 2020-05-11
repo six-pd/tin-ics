@@ -2,6 +2,7 @@
 #include <string.h>
 #include <string>
 #include <time.h>
+#include <algorithm>
 
 extern pthread_mutex_t mutex;
 
@@ -270,8 +271,9 @@ void* ClientHandling::handleClient()
 			break;
 	}while(!disconnectRequested);
 	std::cout << "kocze watek" << std::endl;
+	removeFromClientsList();
 	// to jest turbo dziwne:
-	delete this;	
+	delete this;
 	// ale znalazlem w internetach, ze tak mozna i nie widze innej opcji na usuwanie Client
 	pthread_exit(NULL);
 }
@@ -284,4 +286,9 @@ bool ClientHandling::findAddrInClients(struct sockaddr_in6 a)
 			return true;
 	}
 	return false;
+}
+
+void ClientHandling::removeFromClientsList()
+{
+	clientsList.erase(std::find(clientsList.begin(), clientsList.end(), this));
 }
