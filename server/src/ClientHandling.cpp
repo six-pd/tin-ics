@@ -61,10 +61,10 @@ void ClientHandling::sendAndCheckChallenge()
 	}
 	
 	if(getIntArg(1) == challenge)
-		sendString('0'+std::to_string(SRV_CHALLENGE_ACC)+'0'+';');
+		sendString('0'+std::to_string(SRV_CHALLENGE_ACC)+';'+'0'+';');
 	else
 	{
-		sendString('0'+std::to_string(SRV_CHALLENGE_ACC)+'1'+';');
+		sendString('0'+std::to_string(SRV_CHALLENGE_ACC)+';'+'1'+';');
 		protocolError(CL_CHALLENGE_RESP);
 	}
 }
