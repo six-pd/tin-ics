@@ -80,7 +80,7 @@ void ClientHandling::askForSSIDAndCheck()
 	//NEW_SSID:
 	if(getIntArg(1) == 0)
 	{
-		int newSSID = rand() % 1000;
+		int newSSID = (rand() % 900) + 100;
 		sendString('0'+std::to_string(SRV_NEW_SSID)+';'+std::to_string(newSSID)+';');
 		ssid = newSSID;
 	}
