@@ -61,7 +61,7 @@ void ClientHandling::sendAndCheckChallenge()
 	}
 	
 	if(getIntArg(1) == challenge)
-		sendString(std::to_string(SRV_CHALLENGE_ACC));
+		sendString('0'+std::to_string(SRV_CHALLENGE_ACC));
 	else
 		protocolError(CL_CHALLENGE_RESP);
 	
@@ -132,8 +132,8 @@ void ClientHandling::endConnection()
 void ClientHandling::sendString(std::string s)
 {
 	strcpy(bufOut, s.c_str());
-	std::cout << bufOut << std::endl; 
-	std::cout << send(mySocket, bufOut, sizeof(bufOut), 0);
+	std::cout << "bufOut: " << bufOut << std::endl; 
+	std::cout << "sendAmount: " << send(mySocket, bufOut, sizeof(bufOut), 0) << std::endl;
 	
 	//write(mySocket, bufOut, 1024);
 }
