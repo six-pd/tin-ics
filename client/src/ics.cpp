@@ -25,7 +25,7 @@ int ics_server::ics_recv(int len, std::string flag, int tries)
 	for(int i = 0;i <= tries;++i){
 		int numbytes = recv(sock, temp, len, 0);
 		if (numbytes == -1){
-			std::cout << "Recv function error!" << errno << '\n';
+			std::cout << "Recv function error: " << errno << '\n';
 			return -2;
 		}
 		if(numbytes > len){
@@ -40,6 +40,7 @@ int ics_server::ics_recv(int len, std::string flag, int tries)
 		}
 		else
 		{
+			std::cout << temp << '\n';
 			buf = temp + 3;
 			buf.pop_back(); //ends with ';'
 			return 0;
