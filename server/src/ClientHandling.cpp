@@ -52,7 +52,7 @@ void ClientHandling::sendAndCheckChallenge()
 
 	int challenge = rand() % 1000;	//TODO normalny challenge
 	
-	sendString(std::to_string(SRV_CHALLENGE_REQ)+';'+std::to_string(challenge)+';');
+	sendString('0'+std::to_string(SRV_CHALLENGE_REQ)+';'+std::to_string(challenge)+';');
 
 	if(!receiveData() || getFlagFromMsg() != CL_CHALLENGE_RESP)
 	{
@@ -79,7 +79,7 @@ void ClientHandling::askForSSIDAndCheck()
 	if(getIntArg(1) == 0)
 	{
 		int newSSID = rand() % 1000;
-		sendString(std::to_string(SRV_NEW_SSID)+';'+std::to_string(newSSID)+';');
+		sendString('0'+std::to_string(SRV_NEW_SSID)+';'+std::to_string(newSSID)+';');
 		ssid = newSSID;
 	}
 	//PREVIOUS_SSID_ACCEPT
@@ -100,7 +100,7 @@ void ClientHandling::getClientName()
 	}
 
 	name = getStringArg(1);
-	sendString(std::to_string(SRV_NAME_ACC)+';');
+	sendString('0'+std::to_string(SRV_NAME_ACC)+';');
 }
 
 
@@ -132,7 +132,9 @@ void ClientHandling::endConnection()
 void ClientHandling::sendString(std::string s)
 {
 	strcpy(bufOut, s.c_str());
-	send(mySocket, bufOut, 1024, 0);
+	std::cout << bufOut << std::endl; 
+	std::cout << send(mySocket, bufOut, sizeof(bufOut), 0);
+	
 	//write(mySocket, bufOut, 1024);
 }
 
@@ -141,7 +143,7 @@ bool ClientHandling::receiveData()
 
 	memset(bufIn, 0, sizeof(bufIn));
 	int rval = recv(mySocket, bufIn, sizeof(bufIn), 0);
-	std::cout << "received. Data: " << bufIn << rval << std::endl;
+	std::cout << "received data: " << bufIn << ". Size: "<< rval << std::endl;
    	if (rval == -1)
     {
 		std::cout << "Error reading stream message" << std::endl;
