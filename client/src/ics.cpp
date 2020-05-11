@@ -69,6 +69,7 @@ int ics_server::ics_handshake()
 
 	pass = "password;";
 	msg.append(buf);
+	msg.append(";");
 	send(sock, msg.c_str(), msg.length(), 0);
 
 	if(ics_recv(5, SRV_CHALLENGE_ACC) != 0)
