@@ -13,6 +13,7 @@ ics_server ics_serv;
 
 int main(){
 	int cont = 0;
+	std::string dummy;
 	std::cout << "Welcome to ICS!\n";
 
 	for(;;){
@@ -33,6 +34,10 @@ int main(){
 	std::cout <<"Connection successful.\n";
 
 	std::cout << "Client list:\n" << ics_serv.ics_clist() << '\n';
+
+	std::cout << "Press Enter to disconnect\n";
+
+	std::cin >> dummy;
 
 	ics_serv.ics_disconnect();
 
