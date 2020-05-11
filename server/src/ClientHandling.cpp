@@ -14,7 +14,7 @@ ClientHandling::ClientHandling(int newSocket, struct sockaddr_in6 newAddress)
 	clientAddress = newAddress;
 	clientsList.push_back(this);
 	disconnectRequested = false;
-	connect(mySocket, (struct sockaddr*)&clientAddress, sizeof(clientAddress));
+	//connect(mySocket, (struct sockaddr*)&clientAddress, sizeof(clientAddress));
 }
 
 
@@ -139,17 +139,22 @@ void ClientHandling::sendString(std::string s)
 {
 	strcpy(bufOut, s.c_str());
 	std::cout << "bufOut: " << bufOut << std::endl; 
-	std::cout << "sendAmount: " << send(mySocket, bufOut, sizeof(bufOut), 0) << std::endl;
+	std::cout << "sendAmount: " << sendto(mySocket, bufOut, sizeof(bufOut), 0, (struct sockaddr*)&clientAddress, sizeof(clientAddress)) << std::endl;
 	
 	//write(mySocket, bufOut, 1024);
 }
 
 bool ClientHandling::receiveData()
 {
-
+	socklen_t length;
+	struct sockaddr_in6 newAddress;
 	memset(bufIn, 0, sizeof(bufIn));
 	pthread_mutex_lock(&mutex);
-	int rval = recv(mySocket, bufIn, sizeof(bufIn), 0);
+	int rval = recvfrom(mySocket, bufIn, sizeof(bufIn), MSG_PEEK, (struct sockaddr*)&newAddress, &length);
+	if((*((struct sockaddr_in*)&newAddress)).sin_addr.s_addr == (*((struct sockaddr_in*)&clientAddress)).sin_addr.s_addr)
+	{
+		recvfrom(mySocket, bufIn, sizeof(bufIn), 0, (struct sockaddr*)&clientAddress, &length);
+	}
 	pthread_mutex_unlock(&mutex);
 	std::cout << "received data: " << bufIn << ". Size: "<< rval << std::endl;
    	if (rval == -1)
@@ -272,7 +277,6 @@ void* ClientHandling::handleClient()
 	}while(!disconnectRequested);
 	std::cout << "kocze watek" << std::endl;
 	removeFromClientsList();
-	std::cout << clientsList[0]->name << std::endl;
 	// to jest turbo dziwne:
 	delete this;
 	// ale znalazlem w internetach, ze tak mozna i nie widze innej opcji na usuwanie Client
@@ -284,7 +288,9 @@ bool ClientHandling::findAddrInClients(struct sockaddr_in6 a)
 	for(auto i: clientsList)
 	{
 		if((*((struct sockaddr_in*)&a)).sin_addr.s_addr == (*((struct sockaddr_in*)&(i->clientAddress))).sin_addr.s_addr)
+		{	
 			return true;
+		}
 	}
 	return false;
 }

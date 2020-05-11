@@ -54,7 +54,8 @@ int  main(int argc, char **argv)
             pthread_t newThread;
             int newSock = sock;
             ClientHandling* newClient = new ClientHandling(newSock, clientAddr);
-
+            memset(&clientAddr, 0, sizeof(clientAddr));
+            memset(&length, 0, sizeof(length));
             pthread_create(&newThread, NULL, (THREADFUNCPTR) &ClientHandling::handleClient, newClient);
         }
     } while(true);
