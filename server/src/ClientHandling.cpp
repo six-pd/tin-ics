@@ -15,10 +15,7 @@ ClientHandling::ClientHandling(int newSocket, struct sockaddr_in6 newAddress)
 
 void ClientHandling::callProperMethod()
 {
-
 	int msgFlag = getFlagFromMsg();
-
-	std::cout << msgFlag << std::endl;
 
 	if(msgFlag == CL_CONNECTION_REQ)
 	{
