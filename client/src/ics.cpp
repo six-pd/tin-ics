@@ -40,7 +40,7 @@ int ics_server::ics_recv(int len, std::string flag, int tries)
 		}
 		else
 		{
-			std::cout << temp << '\n';
+			std::cout << "Message received by client: " << temp << '\n';
 			buf = temp + 3;
 			buf.pop_back(); //ends with ';'
 			return 0;
@@ -105,7 +105,7 @@ int ics_server::ics_handshake()
 	
 	std::string name = "nickname";
 	name.append(";");
-	msg.append(";");
+	msg.append(name);
 
 	send(sock, msg.c_str(), msg.length(), 0);
 	
