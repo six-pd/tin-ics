@@ -60,13 +60,11 @@ void ClientHandling::sendAndCheckChallenge()
 	
 	sendString('0'+std::to_string(SRV_CHALLENGE_REQ)+';'+std::to_string(challenge)+';');
 
-	std::cout << bufIn << std::endl;
 	if(!receiveData() || getFlagFromMsg() != CL_CHALLENGE_RESP)
 	{
 		protocolError(CL_CHALLENGE_RESP);
 		return;
 	}
-	std::cout << bufIn << std::endl;
 	if(getIntArg(1) == challenge)
 		sendString('0'+std::to_string(SRV_CHALLENGE_ACC)+';'+'0'+';');
 	else
