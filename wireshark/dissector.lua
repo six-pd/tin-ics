@@ -1,10 +1,10 @@
 ics_protocol = Proto("ICS", "ICS Communication Protocol")
 
-id =
+id = ProtoField.char("ics.commid", "Message ID")
 
-id_num =
+id_num = ProtoField.char("ics.commnum", "Message Number")
 
-message =
+message = ProtoField.char("ics.message", "Message")
 
 ics_protocol.fields = {id, id_num, message}
 
