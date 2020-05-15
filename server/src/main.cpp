@@ -23,7 +23,7 @@ int  main(int argc, char **argv)
 
     serverAddr.sin6_family = AF_INET6;
     serverAddr.sin6_addr = in6addr_any;
-    serverAddr.sin6_port = 0;
+    serverAddr.sin6_port = htons(45456);
     if (bind(sock, (struct sockaddr *) &serverAddr, sizeof serverAddr)
         == -1) {
         std::cout << "binding stream socket" << std::endl;
