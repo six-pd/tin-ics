@@ -1,7 +1,7 @@
 Jak używać wireshark:
 
 1. Pobierz i zainstaluj wireshark (sudo apt-get install wireshark/sudo pacman -S wireshark)
-2. Stwórz foldery ~/.local/lib/wireshark/plugins i skopiuj tam ics.lua
+2. Uruchom skrpyt install.sh
 3. Uruchom wireshark, wybierz interfejs loopback (lo)
 4. W pole do filtrów na samej górze wpisz 'udp'
 5. Powinno działać
