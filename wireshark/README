@@ -1,4 +1,4 @@
-Jak używać wireshar z ics:
+Jak używać wireshark z ics:
 
 1. Pobierz i zainstaluj wireshark (sudo apt-get install wireshark/sudo pacman -S wireshark)
 2. Zainstaluj plugin ics skryptem install.sh (będąc w folderze tin-ics/wireshark)
