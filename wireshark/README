@@ -1,7 +1,7 @@
 Jak używać wireshar z ics:
 
 1. Pobierz i zainstaluj wireshark (sudo apt-get install wireshark/sudo pacman -S wireshark)
-2. Zainstaluj plugin ics skryptem install.sh
+2. Zainstaluj plugin ics skryptem install.sh (będąc w folderze tin-ics/wireshark)
 3. Uruchom wireshark, wybierz interfejs loopback (lo)
 4. W pole do filtrów na samej górze wpisz udp
 5. Powinno działać
