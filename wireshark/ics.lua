@@ -1,12 +1,12 @@
 ics_protocol = Proto("ICS", "ICS Communication Protocol")
 
-id = ProtoField.char("ics.commid", "Message ID")
+req = ProtoField.new("Request", "ics.request", ftypes.CHAR)
 
-id_num = ProtoField.char("ics.commnum", "Message Number")
+num = ProtoField.new("Request Sequence Number", "ics.seqnum", ftypes.CHAR)
 
-message = ProtoField.char("ics.message", "Message")
+message = ProtoField.new("Message", "ics.message", ftypes.STRING)
 
-ics_protocol.fields = {id, id_num, message}
+ics_protocol.fields = {req, num, message}
 
 function ics_protocol.dissector(buffer, pinfo, tree)
 	length = buffer:len()
@@ -16,9 +16,9 @@ function ics_protocol.dissector(buffer, pinfo, tree)
 
 	local subtree = tree:add(ics_protocol, buffer(), "ICS Communication Data")
 
-	subtree:add_le(id, buffer(0,1))
-	subtree:add_le(id_num, buffer(1,1))
-	subtree:add_le(message, buffer(3,(length - 1)))
+	subtree:add_le(req, buffer(0,1))
+	subtree:add_le(num, buffer(1,1))
+	subtree:add_le(message, buffer(3,(length - 4)))
 end
 
 local udp_port = DissectorTable.get("udp.port")
