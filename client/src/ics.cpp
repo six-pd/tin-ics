@@ -54,7 +54,6 @@ int ics_server::ics_handshake()
 	//char ch[CH_LEN];
 	std::string pass;
 	std::string ssid;
-	std::fstream ssid_file;
 
 	msg = CL_CONNECTION_REQ;
 	msg.append(";");
@@ -81,10 +80,12 @@ int ics_server::ics_handshake()
 	msg = CL_SSID_REQ;
 	msg.append(";");
 
-	ssid_file.open(dirpath + "ssid");
+	std::ifstream ssid_file(dirpath + "ssid");
 	if(!ssid_file.is_open())
 		return -5;
 	ssid_file >> ssid;
+	std::cout << "I have saved the ssid: " << ssid << "len: " << ssid.length() << std::endl;
+	ssid_file.close();
 	if(ssid.length() != 3)
 		ssid = "0";
 
@@ -95,7 +96,11 @@ int ics_server::ics_handshake()
 	if(ssid == "0"){
 		if(ics_recv(7, SRV_NEW_SSID) != 0)
 			return -6;
-		ssid_file.write(buf.c_str(), 3);
+		std::ofstream ssid_file(dirpath + "ssid");
+		ssid_file << buf;
+		if(ssid_file.fail())
+			std::cout << "Failed to write SSID!\n";
+	ssid_file.close();
 	}else{
 		if(ics_recv(3, SRV_SSID_ACC) != 0)
 			return -7;
