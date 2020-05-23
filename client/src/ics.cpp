@@ -193,13 +193,9 @@ int ics_server::ics_disconnect(){
 
 /*Input handler*/
 
-ics_input_handler::ics_input_handler();
+ics_input_handler::ics_input_handler()
+{}
 
-
-constexpr int ics_input_handler::str2int(std::string s){
-	//TODO
-	return 0;
-}
 
 /*
  * Wywolujemy funkcje ics_server w zaleznosci od wpisanej komendy
@@ -207,10 +203,7 @@ constexpr int ics_input_handler::str2int(std::string s){
 
 void ics_input_handler::execute(){
 
-	switch(str2int(command)) {
-		case str2int("help"):
-		default: print_help(); 
-	}
+	if(command == "")
 	return;
 }
 

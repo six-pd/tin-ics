@@ -133,14 +133,9 @@ public:
  * Klasa zarzadzajaca danymi wejsciowymi klienta
  */
 
-class ics_input_handler{
+class ics_input_handler
+{
 	std::string command, args;
-
-	/*
-	 * Zamieniamy string na int dla switch
-	 */
-
-	constexpr int str2int(std::string s);
 
 	/*
 	 * Wywolanie odpowiedniej metody
