@@ -1,54 +1,53 @@
-#include"ClientHandling.h"
-#include<errno.h>
+#include "ClientHandling.h"
+#include <errno.h>
 
+#define TEMP_PORT 45456
 pthread_mutex_t mutex;
 
-int  main(int argc, char **argv)
+int main(int argc, char **argv)
 {
     mutex = PTHREAD_MUTEX_INITIALIZER;
-    typedef void * (*THREADFUNCPTR)(void *);
-   	srand(time(NULL));
+    typedef void* (*THREADFUNCPTR)(void*);
 
     int sock;
     socklen_t length;
-    struct sockaddr_in6 serverAddr, clientAddr;
+    sockaddr_in6 serverAddr, clientAddr;
     char buf[1024];
 
     sock = socket(AF_INET6, SOCK_DGRAM, 0);
-    if (sock == -1) {
-       std::cout << "opening stream socket" << std::endl;
+    if (sock == -1)
+    {
+        std::cout << "Error opening socket" << std::endl;
         return -1;
     }
-/* dowiaz adres do gniazda */
 
     serverAddr.sin6_family = AF_INET6;
     serverAddr.sin6_addr = in6addr_any;
-    serverAddr.sin6_port = htons(45456); //Tymczasowo zakladam ze to bedzie nasz port
-    if (bind(sock, (struct sockaddr *) &serverAddr, sizeof serverAddr)
-        == -1) {
-        std::cout << "binding stream socket" << std::endl;
+    serverAddr.sin6_port = htons(TEMP_PORT);
+    if(bind(sock, (sockaddr*) &serverAddr, sizeof serverAddr) == 1)
+    {
+        std::cout << "Error Binding stream socket" << std::endl;
         return -1;
     }
-    /* wydrukuj na konsoli przydzielony port */
-    length = sizeof( serverAddr);
-    if (getsockname(sock,(struct sockaddr *) &serverAddr, &length)
-         == -1) {
-        std::cout << "getting socket name" << std::endl;
+
+    length = sizeof(serverAddr);
+    if (getsockname(sock,(sockaddr*) &serverAddr, &length) == -1)
+    {
+        std::cout << "Error etting socket name" << std::endl;
         return -1;
     }
-    std::cout << "Socket port " << ntohs(serverAddr.sin6_port) << std::endl;
-    /* zacznij przyjmowa� polaczenia... */
-    //listen(sock, 5);
+    std::cout << "Socket port: " << ntohs(serverAddr.sin6_port) << std::endl << std::endl;
     
-    do {
+    do
+    {
         pthread_mutex_lock(&mutex);
-        int status = recvfrom(sock, buf, 1024, MSG_PEEK, (struct sockaddr*)&clientAddr, &length);
+        int status = recvfrom(sock, buf, 1024, MSG_PEEK, (sockaddr*)&clientAddr, &length);
         pthread_mutex_unlock(&mutex);
         if(ClientHandling::findAddrInClients(clientAddr))
             continue;
             
-        if (status < 0 )
-             std::cout << "Error on connecting" << " " << errno << std::endl;
+        if (status < 0)
+             std::cout << "Error on connecting, code " << errno << std::endl;
         else
         {
             pthread_t newThread;
