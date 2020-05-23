@@ -8,14 +8,14 @@ extern pthread_mutex_t mutex;
 
 std::vector<ClientHandling*> ClientHandling::clientsList;
 
-ClientHandling::ClientHandling(int newSocket, struct sockaddr_in6 newAddress)
+ClientHandling::ClientHandling(int newSocket, sockaddr_in6 newAddress)
 {
 	mySocket = newSocket;
 	clientAddress = newAddress;
 	clientAddressLen = sizeof(clientAddress);
 	clientsList.push_back(this);
 	disconnectRequested = false;
-	//connect(mySocket, (struct sockaddr*)&clientAddress, sizeof(clientAddress));
+	//connect(mySocket, (sockaddr*)&clientAddress, sizeof(clientAddress));
 }
 
 
@@ -149,7 +149,7 @@ void ClientHandling::sendString(std::string s)
 bool ClientHandling::receiveData()
 {
 	socklen_t len;
-	struct sockaddr_in6 newAddress;
+	sockaddr_in6 newAddress;
 	len = sizeof(newAddress);
 	int rval;
 	memset(bufIn, 0, sizeof(bufIn));
@@ -293,11 +293,11 @@ void* ClientHandling::handleClient()
 	pthread_exit(NULL);
 }
 
-bool ClientHandling::findAddrInClients(struct sockaddr_in6 a)
+bool ClientHandling::findAddrInClients(sockaddr_in6 a)
 {
 	for(auto i: clientsList)
 	{
-		if((*((struct sockaddr_in*)&a)).sin_addr.s_addr == (*((struct sockaddr_in*)&(i->clientAddress))).sin_addr.s_addr)
+		if((*((sockaddr_in*)&a)).sin_addr.s_addr == (*((sockaddr_in*)&(i->clientAddress))).sin_addr.s_addr)
 		{	
 			return true;
 		}
