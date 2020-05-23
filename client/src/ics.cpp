@@ -304,12 +304,11 @@ int ics_input_handler::execute(){
  */
 
 int ics_input_handler::get_command(){
+	std::string input;
 	if(first_start){
 		first_start=false;
 		std::cout << "Input handler ready.\nWelcome to ICS. Type \"help\" for available commands.\n";
 	}
-	std::string input;
-
 	std::cout << ">";
 	std::getline(std::cin, input);
 
