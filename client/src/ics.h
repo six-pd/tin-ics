@@ -129,6 +129,8 @@ public:
 
 	void ics_setname(std::string nm);
 
+	std::string ics_getname();
+
 };
 
 /*
@@ -138,7 +140,7 @@ public:
 class ics_input_handler
 {
 	std::string command, args;
-	bool set, connected;
+	bool set, connected, first_start;
 	ics_server* sr;
 
 	/*
