@@ -76,6 +76,12 @@ class ics_server
 	int ics_recv(int len, std::string flag, int tries = 20);
 
 	/*
+	 * Funkcja obslugujaca odbieranie plikow
+	 */
+
+	int ics_file_recv(std::string flag);
+
+	/*
 	 * Funkcja zajmujaca sie autoryzacja oraz polaczeniem z serwerem.
 	 */
 	int ics_handshake();
@@ -108,4 +114,53 @@ public:
 	 */
 
 	int ics_disconnect();
+
+	/*
+	 * Wysylanie pliku
+	 */
+
+	int ics_send(std::string path_to_file, int blocksize);
+
+	/*
+	 * Odbieranie pliku
+	 */
+
+	int ics_recv_file();
+
+};
+
+/*
+ * Klasa zarzadzajaca danymi wejsciowymi klienta
+ */
+
+class ics_input_handler{
+	std::string command, args;
+
+	/*
+	 * Zamieniamy string na int dla switch
+	 */
+
+	constexpr int str2int(std::string s);
+
+	/*
+	 * Wywolanie odpowiedniej metody
+	 */
+
+	void execute();
+
+	/*
+	 * User help
+	 */
+
+	void print_help();
+public:
+
+	ics_input_handler();
+
+	/*
+	 * Polecenie uzytkownika
+	 */
+
+	void get_command();
+
 };

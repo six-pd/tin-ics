@@ -190,3 +190,42 @@ int ics_server::ics_disconnect(){
 	ssid_file.close();
 	return 0;
 }
+
+/*Input handler*/
+
+ics_input_handler::ics_input_handler();
+
+
+constexpr int ics_input_handler::str2int(std::string s){
+	//TODO
+	return 0;
+}
+
+/*
+ * Wywolujemy funkcje ics_server w zaleznosci od wpisanej komendy
+ */
+
+void ics_input_handler::execute(){
+
+	switch(str2int(command)) {
+		case str2int("help"):
+		default: print_help(); 
+	}
+	return;
+}
+
+/*
+ * Prosty sposob aby pozyskac input
+ */
+
+void ics_input_handler::get_command(){
+	std::string input;
+
+	std::cin >> input;
+
+	int pos = input.find_first_of(' ');
+
+	command = input.substr(0, pos);
+	args = input.substr(pos+1);
+	return;
+}	
