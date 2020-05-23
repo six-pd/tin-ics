@@ -141,7 +141,7 @@ void ClientHandling::sendString(std::string s)
 	strcpy(bufOut, s.c_str());
 	std::cout << "bufOut: " << bufOut << std::endl; 
 	//pthread_mutex_lock(&mutex);
-	std::cout << "sendAmount: " << sendto(mySocket, bufOut, sizeof(bufOut), 0, (struct sockaddr*)&clientAddress, sizeof(clientAddress)) << std::endl;
+	std::cout << "sendAmount: " << sendto(mySocket, bufOut, s.length(), 0, (struct sockaddr*)&clientAddress, sizeof(clientAddress)) << std::endl;
 	//pthread_mutex_unlock(&mutex);
 	//write(mySocket, bufOut, 1024);
 }
@@ -155,9 +155,14 @@ bool ClientHandling::receiveData()
 	memset(bufIn, 0, sizeof(bufIn));
 	pthread_mutex_lock(&mutex);
 	recvfrom(mySocket, bufIn, sizeof(bufIn), MSG_PEEK, (struct sockaddr*)&newAddress, &len);
-	if((*((struct sockaddr_in*)&newAddress)).sin_addr.s_addr == (*((struct sockaddr_in*)&clientAddress)).sin_addr.s_addr)
+	if((*((sockaddr_in*)&newAddress)).sin_addr.s_addr == (*((sockaddr_in*)&clientAddress)).sin_addr.s_addr)
 	{
 		rval = recvfrom(mySocket, bufIn, sizeof(bufIn), 0, (struct sockaddr*)&clientAddress, &clientAddressLen);
+	}
+	else
+	{
+		pthread_mutex_unlock(&mutex);
+		return false;
 	}
 	pthread_mutex_unlock(&mutex);
 	std::cout << "received data: " << bufIn << ". Size: "<< rval << std::endl;
@@ -177,7 +182,9 @@ bool ClientHandling::receiveData()
 		return false;
 	}
 	else
+	{
 		return true;
+	}
 }
 
 int ClientHandling::getFlagFromMsg()
