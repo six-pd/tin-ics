@@ -17,6 +17,7 @@ ics_server::ics_server()
 
 	if(bind(sock, (struct sockaddr*) &client, sizeof(client)) == -1)
 		throw "Failed to bind IPv6 socket!\n";
+	name = "ICS User";
 }
 
 int ics_server::ics_recv(int len, std::string flag, int tries)
@@ -40,7 +41,6 @@ int ics_server::ics_recv(int len, std::string flag, int tries)
 		}
 		else
 		{
-			std::cout << "Message received by client: " << temp << '\n';
 			buf = temp + 3;
 			buf.pop_back(); //ends with ';'
 			return 0;
@@ -84,7 +84,6 @@ int ics_server::ics_handshake()
 	if(!ssid_file.is_open())
 		return -5;
 	ssid_file >> ssid;
-	std::cout << "I have saved the ssid: " << ssid << "len: " << ssid.length() << std::endl;
 	ssid_file.close();
 	if(ssid.length() != 3)
 		ssid = "0";
@@ -107,10 +106,9 @@ int ics_server::ics_handshake()
 	}
 	msg = CL_NAME;
 	msg.append(";");
-	
-	std::string name = "nick";
-	name.append(";");
-	msg.append(name);
+	std::string nickname = this->name;
+	nickname.append(";");
+	msg.append(nickname);
 
 	send(sock, msg.c_str(), msg.length(), 0);
 	
@@ -149,13 +147,13 @@ int ics_server::ics_connect()
 	return 0;
 }
 
-int ics_server::ics_getinfo(){
-	int p;
+int ics_server::ics_getinfo(std::string a, int p){
+	/*int p;
 	std::string a;
 	std::cout << "Input server IP(ICS uses IPv6!):\n";
 	std::cin >> a;
 	std::cout << "Specify server port:\n";
-	std::cin >> p;
+	std::cin >> p;*/
 	if (p > 65535 || p <= 0){
 		std::cout << "Invalid port number!\n";
 		return -1;
@@ -191,27 +189,73 @@ int ics_server::ics_disconnect(){
 	return 0;
 }
 
+void ics_server::ics_setname(std:string nm){
+	name = nm;
+	return;
+}
 /*Input handler*/
 
-ics_input_handler::ics_input_handler()
-{}
+ics_input_handler::ics_input_handler(ics_server* serv){
+	sr = serv;
+	set = false;
+	connected = false;
+}
 
 
 /*
  * Wywolujemy funkcje ics_server w zaleznosci od wpisanej komendy
  */
 
-void ics_input_handler::execute(){
+int ics_input_handler::execute(){
 
-	if(command == "")
-	return;
+	if(command == "name" && !this->connected){
+		if(args == "") {
+			std::cout << "No name given!\n";
+			return -1;
+		}else{
+			sr->ics_setname(args);
+			return 0;
+		}else if(command == "set" && !this->connected){
+			std::string address, ps;
+			int port;
+			int p = args.find_first_of(' ');
+			address = args.substr(0,p);
+			ps = args.substr(p+1);
+			port = atoi(ps.c_str());
+			if(sr->ics_getinfo(address, port) == -1)
+				return -1;
+			this->set = true;
+			return 0;
+		}else if(command == "connect" && !this->connected){
+			if(!this->set){
+				std::cout << "Specify connection parameters\n";
+				return -1;
+			}
+			int ret;
+			try{
+				ret = sr->ics_connect();
+			}catch(const char* err){
+				std::cout << "While connecting: " << err << "Function returned " << ret << std::endl;
+				return -2;
+			}
+			this->connected = true;
+			return 0;
+		}else if(command == "disconnect" && this->connected){
+			sr->ics_disconnect();
+			return 0;
+		}else if(command == "list" && this->connected){
+			std::cout << "Client list:\n" << sr->ics_clist() << std::endl;
+		}
+
+	}
+	return 0;
 }
 
 /*
  * Prosty sposob aby pozyskac input
  */
 
-void ics_input_handler::get_command(){
+int ics_input_handler::get_command(){
 	std::string input;
 
 	std::cin >> input;
@@ -220,5 +264,6 @@ void ics_input_handler::get_command(){
 
 	command = input.substr(0, pos);
 	args = input.substr(pos+1);
-	return;
+
+	return execute();
 }	

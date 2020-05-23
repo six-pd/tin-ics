@@ -101,7 +101,7 @@ public:
 	/*
 	 * Zebranie danych do polaczenia
 	 */
-	int ics_getinfo();
+	int ics_getinfo(std::string a, int p);
 
 	/*
 	 * Wyswietlanie listy klientow na serwerze
@@ -127,6 +127,8 @@ public:
 
 	int ics_recv_file();
 
+	void ics_setname(std::string nm);
+
 };
 
 /*
@@ -136,12 +138,14 @@ public:
 class ics_input_handler
 {
 	std::string command, args;
+	bool set, connected;
+	ics_server* sr;
 
 	/*
 	 * Wywolanie odpowiedniej metody
 	 */
 
-	void execute();
+	int execute();
 
 	/*
 	 * User help
@@ -150,12 +154,8 @@ class ics_input_handler
 	void print_help();
 public:
 
-	ics_input_handler();
+	ics_input_handler(ics_server* serv);
 
-	/*
-	 * Polecenie uzytkownika
-	 */
-
-	void get_command();
+	int get_command();
 
 };
