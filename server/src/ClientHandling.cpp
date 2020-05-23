@@ -76,7 +76,6 @@ void ClientHandling::sendAndCheckChallenge()
 
 void ClientHandling::askForSSIDAndCheck()
 {
-
 	if(!receiveData() || getFlagFromMsg() != CL_SSID_REQ)
 	{
 		protocolError(CL_SSID_REQ);
@@ -85,6 +84,7 @@ void ClientHandling::askForSSIDAndCheck()
 	//NEW_SSID:
 	if(getIntArg(1) == 0)
 	{
+		std::cout << "choosing new id" << std::endl;
 		int newSSID = (rand() % 900) + 100;
 		sendString('0'+std::to_string(SRV_NEW_SSID)+';'+std::to_string(newSSID)+';');
 		ssid = newSSID;
@@ -92,8 +92,9 @@ void ClientHandling::askForSSIDAndCheck()
 	//PREVIOUS_SSID_ACCEPT
 	else
 	{
+		std::cout << "reading id from file" << std::endl;
 		ssid = getIntArg(1);
-		sendString(std::to_string(SRV_SSID_ACC)+';');
+		sendString('0'+std::to_string(SRV_SSID_ACC)+';');
 	}
 }
 
@@ -131,7 +132,7 @@ void ClientHandling::sendClientsList()
 
 void ClientHandling::endConnection()
 {
-	sendString(std::to_string(SRV_END_ACC));
+	sendString(std::to_string(SRV_END_ACC)+';');
 	disconnectRequested = true;
 	return;
 }
@@ -139,9 +140,8 @@ void ClientHandling::endConnection()
 void ClientHandling::sendString(std::string s)
 {
 	strcpy(bufOut, s.c_str());
-	std::cout << "bufOut: " << bufOut << std::endl; 
 	//pthread_mutex_lock(&mutex);
-	std::cout << "sendAmount: " << sendto(mySocket, bufOut, s.length(), 0, (struct sockaddr*)&clientAddress, sizeof(clientAddress)) << std::endl;
+	sendto(mySocket, bufOut, s.length(), 0, (sockaddr*)&clientAddress, sizeof(clientAddress));
 	//pthread_mutex_unlock(&mutex);
 	//write(mySocket, bufOut, 1024);
 }
@@ -154,10 +154,10 @@ bool ClientHandling::receiveData()
 	int rval;
 	memset(bufIn, 0, sizeof(bufIn));
 	pthread_mutex_lock(&mutex);
-	recvfrom(mySocket, bufIn, sizeof(bufIn), MSG_PEEK, (struct sockaddr*)&newAddress, &len);
+	recvfrom(mySocket, bufIn, sizeof(bufIn), MSG_PEEK, (sockaddr*)&newAddress, &len);
 	if((*((sockaddr_in*)&newAddress)).sin_addr.s_addr == (*((sockaddr_in*)&clientAddress)).sin_addr.s_addr)
 	{
-		rval = recvfrom(mySocket, bufIn, sizeof(bufIn), 0, (struct sockaddr*)&clientAddress, &clientAddressLen);
+		rval = recvfrom(mySocket, bufIn, sizeof(bufIn), 0, (sockaddr*)&clientAddress, &clientAddressLen);
 	}
 	else
 	{
@@ -165,7 +165,6 @@ bool ClientHandling::receiveData()
 		return false;
 	}
 	pthread_mutex_unlock(&mutex);
-	std::cout << "received data: " << bufIn << ". Size: "<< rval << std::endl;
    	if (rval == -1)
     {
 		std::cout << "Error reading stream message " << errno << std::endl;
@@ -276,7 +275,7 @@ void ClientHandling::securityError()
 
 void* ClientHandling::handleClient()
 {
-	std::cout << "In thread " << pthread_self() << std::endl;
+	std::cout << "Creating new thread no. " << pthread_self() << std::endl;
 	
     int rval = 0;
 
@@ -286,7 +285,7 @@ void* ClientHandling::handleClient()
 		else
 			break;
 	}while(!disconnectRequested);
-	std::cout << "kocze watek" << std::endl;
+	std::cout << "Exiting thread" << std::endl;
 	removeFromClientsList();
 	// to jest turbo dziwne:
 	delete this;

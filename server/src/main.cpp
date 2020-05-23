@@ -36,8 +36,8 @@ int  main(int argc, char **argv)
         std::cout << "getting socket name" << std::endl;
         return -1;
     }
-    std::cout << "Socket port " << ntohs(serverAddr.sin6_port) << std::endl;
-    /* zacznij przyjmowa� polaczenia... */
+    std::cout << "Socket port " << ntohs(serverAddr.sin6_port) << std::endl << std::endl;
+    /* zacznij przyjmowac polaczenia... */
     //listen(sock, 5);
     
     do {
