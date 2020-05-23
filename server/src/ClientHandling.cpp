@@ -55,7 +55,6 @@ void ClientHandling::startConnection()
 
 void ClientHandling::sendAndCheckChallenge()
 {
-
 	int challenge = (rand() % 900) + 100;	//TODO normalny challenge
 	
 	sendString('0'+std::to_string(SRV_CHALLENGE_REQ)+';'+std::to_string(challenge)+';');
@@ -66,10 +65,10 @@ void ClientHandling::sendAndCheckChallenge()
 		return;
 	}
 	if(getIntArg(1) == challenge)
-		sendString('0'+std::to_string(SRV_CHALLENGE_ACC)+';'+'0'+';');
+		sendString('0'+std::to_string(SRV_CHALLENGE_ACC)+";0;");
 	else
 	{
-		sendString('0'+std::to_string(SRV_CHALLENGE_ACC)+';'+'1'+';');
+		sendString('0'+std::to_string(SRV_CHALLENGE_ACC)+";1;");
 		protocolError(CL_CHALLENGE_RESP);
 	}
 }
@@ -81,18 +80,16 @@ void ClientHandling::askForSSIDAndCheck()
 		protocolError(CL_SSID_REQ);
 		return;
 	}
-	//NEW_SSID:
+	//assigning new id:
 	if(getIntArg(1) == 0)
 	{
-		std::cout << "choosing new id" << std::endl;
 		int newSSID = (rand() % 900) + 100;
 		sendString('0'+std::to_string(SRV_NEW_SSID)+';'+std::to_string(newSSID)+';');
 		ssid = newSSID;
 	}
-	//PREVIOUS_SSID_ACCEPT
+	//accepting existing id:
 	else
 	{
-		std::cout << "reading id from file" << std::endl;
 		ssid = getIntArg(1);
 		sendString('0'+std::to_string(SRV_SSID_ACC)+';');
 	}
@@ -193,12 +190,14 @@ int ClientHandling::getFlagFromMsg()
 
 int ClientHandling::getIntArg(int argNum)	// TODO nie sprawdzam, czy liczba jest liczba
 {
-	int i = 0;
+	unsigned int i = 0;
 	int currentArg = 0;
 	while(currentArg != argNum && bufIn[i] != '\0')
 	{
 		if(bufIn[i] == ';')
+		{
 			++currentArg;
+		}
 		++i;
 		if(i >= BUF_SIZE)
 		{
@@ -207,24 +206,10 @@ int ClientHandling::getIntArg(int argNum)	// TODO nie sprawdzam, czy liczba jest
 		}
 	}
 	
-	// teraz i wskazuje na pierwszy element szukanego argumentu
-	std::string targetArgument;
-	while(bufIn[i] != ';' && bufIn[i] != '\0')
-	{
-		targetArgument += bufIn[i];
-		++i;
-		if(i >= BUF_SIZE)
-		{
-			securityError();
-			return -1;
-		}
-	}
-
-	// mamy szukany argument jako string
 	int result = 0;
-	for(i = 0; i < targetArgument.size(); ++i)
+	for(; bufIn[i]!=';' && bufIn[i]!='\0' && i<BUF_SIZE; ++i)
 	{
-		result = result*10 + (targetArgument[i] - '0');
+		result = result*10 + (bufIn[i] - '0');
 	}
 	return result;
 }
@@ -268,38 +253,40 @@ void ClientHandling::protocolError(int flagExpected)
 
 void ClientHandling::securityError()
 {
-	std::cout << "Wrong sent data - possible threat" << std::endl;
+	//security error sie chyba zdarza w ekstremalnych przypadkach, moze wyjatki?
+	std::cout << "Data incorrect - possible threat" << std::endl;
 	// zrobic klientowi jakas krzywde
 	undefinedBehaviorError = true;
 }
 
 void* ClientHandling::handleClient()
 {
-	std::cout << "Creating new thread no. " << pthread_self() << std::endl;
-	
-    int rval = 0;
-
-    do{
+	std::cout << "Creating new thread: " << pthread_self() << std::endl;
+    do
+	{
 		if(receiveData())
 			callProperMethod();
 		else
 			break;
-	}while(!disconnectRequested);
+	} while(!disconnectRequested);
 	std::cout << "Exiting thread" << std::endl;
+
 	removeFromClientsList();
-	// to jest turbo dziwne:
 	delete this;
-	// ale znalazlem w internetach, ze tak mozna i nie widze innej opcji na usuwanie Client
 	pthread_exit(NULL);
 }
 
 bool ClientHandling::findAddrInClients(sockaddr_in6 a)
 {
+	//TODO: dziwnie dziala
 	for(auto i: clientsList)
 	{
 		if((*((sockaddr_in*)&a)).sin_addr.s_addr == (*((sockaddr_in*)&(i->clientAddress))).sin_addr.s_addr)
 		{	
-			return true;
+			//if((*((sockaddr_in*)&a)).sin_port == (*((sockaddr_in*)&(i->clientAddress))).sin_port)
+			{
+				return true;
+			}
 		}
 	}
 	return false;
@@ -307,17 +294,12 @@ bool ClientHandling::findAddrInClients(sockaddr_in6 a)
 
 void ClientHandling::removeFromClientsList()
 {
-	for (auto it = clientsList.begin(); it != clientsList.end(); ) {
-        if ((*it)->name == name){
+	for (auto it = clientsList.begin(); it != clientsList.end();)
+	{
+        if ((*it)->name == this->name)
+		{
             clientsList.erase(it);
         }
     }
-	/*int i = 0;
-	for(; i < clientsList.size(); ++i)
-	{
-		if(clientsList[i] == this)
-		std::cout  << "mam " << i << std::endl;
-	}
-	clientsList.erase(std::find(clientsList.begin(), clientsList.end(), this));
-	clientsList.*/
+	std::cout << "Clients remaining: " << clientsList.size() << std::endl;
 }

@@ -1,4 +1,4 @@
-CF = -std=c++11 #-Wall -g
+CF = -std=c++11 -Wall -g
 LF = -lpthread
 
 all: main.o ClientHandling.o

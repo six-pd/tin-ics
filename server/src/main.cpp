@@ -6,8 +6,10 @@ pthread_mutex_t mutex;
 
 int main(int argc, char **argv)
 {
-    mutex = PTHREAD_MUTEX_INITIALIZER;
     typedef void* (*THREADFUNCPTR)(void*);
+
+    srand(time(NULL));
+    mutex = PTHREAD_MUTEX_INITIALIZER;
 
     int sock;
     socklen_t length;
@@ -26,14 +28,14 @@ int main(int argc, char **argv)
     serverAddr.sin6_port = htons(TEMP_PORT);
     if(bind(sock, (sockaddr*) &serverAddr, sizeof serverAddr) == 1)
     {
-        std::cout << "Error Binding stream socket" << std::endl;
+        std::cout << "Error binding stream socket" << std::endl;
         return -1;
     }
 
     length = sizeof(serverAddr);
     if (getsockname(sock,(sockaddr*) &serverAddr, &length) == -1)
     {
-        std::cout << "Error etting socket name" << std::endl;
+        std::cout << "Error getting socket name" << std::endl;
         return -1;
     }
     std::cout << "Socket port: " << ntohs(serverAddr.sin6_port) << std::endl << std::endl;
