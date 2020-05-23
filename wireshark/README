@@ -1,0 +1,11 @@
+Jak używać wireshark z ics:
+
+1. Pobierz i zainstaluj wireshark (sudo apt-get install wireshark/sudo pacman -S wireshark)
+2. Zainstaluj plugin ics skryptem install.sh (będąc w folderze tin-ics/wireshark)
+3. Uruchom wireshark, wybierz interfejs loopback (lo)
+4. W pole do filtrów na samej górze wpisz udp
+5. Powinno działać
+
+Jak będę mógł to dodam opisy komunikatów
+
+Jak przy wybranym pakiecie zaznaczycie pole ICS Communication Data to na samym dole podświetli się wam cała wiadomość na surowo, przydatne do dobugowania (np. widać długość przesłanego komunikatu, czy są poprawne średniki i inne rzeczy które nie pokazują się w polach request, message itd. )

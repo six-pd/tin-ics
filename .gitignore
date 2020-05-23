@@ -34,3 +34,9 @@
 # LaTeX Documentation artifacts
 **.log
 **.aux
+
+# VSCode files
+**.vscode
+**.vs
+
+**.ics

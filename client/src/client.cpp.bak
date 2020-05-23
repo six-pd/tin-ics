@@ -7,13 +7,15 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "ics.h"
+
 #define DATA "Half a league, half a league . . ."
 
 int main(int argc, char *argv[])
 {
     int sock;
     struct sockaddr_in6 server;
-    struct hostent *hp, *gethostbyname2();
+    struct hostent *hp;
     char buf[1024];
 
     /* Create socket. */
@@ -43,5 +45,10 @@ int main(int argc, char *argv[])
     if (write( sock, DATA, sizeof DATA ) == -1)
 
         perror("writing on stream socket");
+    sleep(5);
+    if (write( sock, DATA, sizeof DATA ) == -1)
+
+        perror("writing on stream socket");
+
     close(sock);
     exit(0);}
