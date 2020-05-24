@@ -223,6 +223,10 @@ int ics_server::ics_disconnect(){
 int ics_server::ics_send(std::string user, std::string path_to_file, int blocksize){
 	std::ifstream file;
 	int len, segments;
+	char* fbuffer = new char[blocksize+5];
+	//25;n; + payload
+	strcpy(fbuffer, "25;"); //CL_UP_PAYLOAD
+
 	file.open(path_to_file, std::ifstream::binary);
 	if(!file.is_open()){
 		std::cout << "File not found!\n";
@@ -255,7 +259,10 @@ int ics_server::ics_send(std::string user, std::string path_to_file, int blocksi
 	segments = atoi(buf.c_str());
 
 	for(;;){
-		//TODO	
+		std::string num = std::to_string(segments) + semi;
+		strcpy(fbuffer+3, num.c_str());
+		file.read(fbuffer+5, blocksize);
+		size_t count = file.gcount();	
 	}
 
 	return 0;
