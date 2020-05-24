@@ -61,27 +61,24 @@ int ics_server::ics_recv(int len, std::string flag, int tries)
 
 int ics_server::ics_handshake()
 {	
-	//char ch[CH_LEN];
 	std::string pass;
 	std::string ssid;
 	
 	std::cout << "Attempting handshake...\n";
 
-	msg = CL_CONNECTION_REQ;
-	msg.append(";");
-	//std::cout << msg << '\n';
+	msg = CL_CONNECTION_REQ + semi;
+
 	send(sock, msg.c_str(), msg.length(), 0);
 
 	if(ics_recv(3 + CH_LEN + 1, SRV_CHALLENGE_REQ) != 0)
 		return -2;
 
-	msg = CL_CHALLENGE_RESP;
-	msg.append(";");
+	msg = CL_CHALLENGE_RESP + semi;
+
 	std::cout << "Server password:";
 
 	pass = "password;";
-	msg.append(buf);
-	msg.append(";");
+	msg.append(buf + semi);
 	send(sock, msg.c_str(), msg.length(), 0);
 
 	if(ics_recv(5, SRV_CHALLENGE_ACC) != 0)
@@ -91,8 +88,7 @@ int ics_server::ics_handshake()
 		return -3; //incorrect password
 	std::cout << "Password OK\n";
 	
-	msg = CL_SSID_REQ;
-	msg.append(";");
+	msg = CL_SSID_REQ + semi;
 
 	std::ifstream ssid_file(dirpath + "ssid");
 	if(!ssid_file.is_open())
@@ -104,8 +100,8 @@ int ics_server::ics_handshake()
 		ssid = "0";
 	}
 
-	msg.append(ssid);
-	msg.append(";");
+	msg.append(ssid + semi);
+
 	send(sock, msg.c_str(), msg.length(), 0);
 
 	if(ssid == "0"){
@@ -120,11 +116,10 @@ int ics_server::ics_handshake()
 		if(ics_recv(3, SRV_SSID_ACC) != 0)
 			return -7;
 	}
-	msg = CL_NAME;
-	msg.append(";");
+	msg = CL_NAME + semi;
+
 	std::string nickname = this->name;
-	nickname.append(";");
-	msg.append(nickname);
+	msg.append(nickname + semi);
 
 	std::cout << "Introducing client...\n";
 
@@ -167,13 +162,8 @@ int ics_server::ics_connect()
 }
 
 int ics_server::ics_getinfo(std::string a, int p){
-	/*int p;
-	std::string a;
-	std::cout << "Input server IP(ICS uses IPv6!):\n";
-	std::cin >> a;
-	std::cout << "Specify server port:\n";
-	std::cin >> p;*/
 	std::cout << "Address: " << a << "\nPort: " << p << std::endl;
+
 	if (p > 65535 || p <= 0){
 		std::cout << "Invalid port number!\n";
 		return -1;
@@ -185,14 +175,12 @@ int ics_server::ics_getinfo(std::string a, int p){
 
 std::string ics_server::ics_clist(){
 	std::string clist;
-	msg = CL_LIST_REQ;
-	msg.append(";");
+	msg = CL_LIST_REQ + semi;
 	send(sock, msg.c_str(), msg.length(), 0);
 	if(ics_recv(512, SRV_LIST_RESP) != 0)
 		return "";
 	clist = buf;
-	msg = CL_LIST_ACC;
-       msg.append(";");       //czy to jest potrzebne
+	msg = CL_LIST_ACC + semi;       //czy to jest potrzebne
 	send(sock, msg.c_str(), msg.length(), 0);
 	return clist;
 }
@@ -200,8 +188,7 @@ std::string ics_server::ics_clist(){
 int ics_server::ics_disconnect(){
 	std::cout << "Attempting to disconnect...\n";
 	std::ofstream ssid_file;
-	msg = CL_END_REQ;
-	msg.append(";");
+	msg = CL_END_REQ + semi;
 	send(sock, msg.c_str(), msg.length(), 0);
 	if(ics_recv(3, SRV_END_ACC) != 0){
 		std::cout << "Warning, no response from server.\nClient might still be registered in the server itself.\n";
@@ -213,11 +200,49 @@ int ics_server::ics_disconnect(){
 	return 0;
 }
 
-int ics_server::ics_send(std::string path_to_file, int blocksize){
+int ics_server::ics_send(std::string user, std::string path_to_file, int blocksize){
+	std::ifstream file;
+	int len, segments;
+	file.open(path_to_file, std::ifstream::binary);
+	if(!file.is_open()){
+		std::cout << "File not found!\n";
+		return -1;
+	}
+
+	file.seekg(0, file.end);
+	len = file.tellg();
+	file.seekg(0, file.beg);
+
+	msg = CL_UPLOAD_REQ + semi + user + semi + path_to_file + semi + std::to_string(len) + semi;
+
+	send(sock, msg.c_str(), msg.length(), 0);
+
+	if(ics_recv(3, SRV_UPLOAD_ACC) != 0){
+		std::cout << "No response from server\n";
+		return -2;
+	}
+
+	msg = CL_UPLOAD_SEG_SIZE + semi + std::to_string(blocksize) + semi;
+
+
+	send(sock, msg.c_str(), msg.length(), 0);
+
+	if(ics_recv(3, SRV_UPLOAD_SEG_NUM) != 0){
+		std::cout << "Failed to retrieve number of segments from server";
+		return -3;
+	}
+
+	segments = atoi(buf.c_str());
+
+	for(segments;segments != 0;--segments){
+		//TODO
+	}
+
 	return 0;
 }
 
-int ics_server::ics_recv(){
+
+int ics_server::ics_recv_file(){
 	return 0;
 }
 

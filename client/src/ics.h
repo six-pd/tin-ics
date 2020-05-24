@@ -69,6 +69,8 @@ class ics_server
 	std::string dirpath = ".ics/";	
 	std::string name, addr;
 	int port;	
+	const std::string semi = ";";
+
 	/*
 	 * Funkcja obslugujaca odbieranie komunikatow
 	 */
@@ -119,7 +121,7 @@ public:
 	 * Wysylanie pliku
 	 */
 
-	int ics_send(std::string path_to_file, int blocksize);
+	int ics_send(std::string user, std::string path_to_file, int blocksize);
 
 	/*
 	 * Odbieranie pliku
