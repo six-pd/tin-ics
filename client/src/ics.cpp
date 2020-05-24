@@ -213,6 +213,14 @@ int ics_server::ics_disconnect(){
 	return 0;
 }
 
+int ics_server::ics_send(std::string path_to_file, int blocksize){
+	return 0;
+}
+
+int ics_server::ics_recv(){
+	return 0;
+}
+
 void ics_server::ics_setname(std::string nm){
 	name = nm;
 	return;
