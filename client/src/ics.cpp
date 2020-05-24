@@ -29,7 +29,11 @@ ics_server::ics_server()
 		std::cout << "Success\n";
 	name = "ICS User";
 }
-
+/*
+ * Kiedy ics_recv jest wywolane, zaklada ze w zmiennej msg znajduje sie
+ * poprzedni komunikat. Dzieki temu jest w stanie ponowic zapytanie w razie
+ * blednego odczytu.
+ */
 int ics_server::ics_recv(int len, std::string flag, int tries)
 {
 	char temp[len+1];
@@ -58,7 +62,9 @@ int ics_server::ics_recv(int len, std::string flag, int tries)
 	}
 	return -1;
 }
-
+/*
+ * Procedura handshake, przeprowadzona krok po kroku.
+ */
 int ics_server::ics_handshake()
 {	
 	std::string pass;
@@ -132,7 +138,7 @@ int ics_server::ics_handshake()
 int ics_server::ics_connect()
 {
 	/*
-	 * Uzyskujemy IP z char* address, w formie d:d:d:d:d:d:d:d
+	 * Uzyskujemy IP z string address, w formie d:d:d:d:d:d:d:d
 	 */
 	std::cout << "Starting connection...\n";
 	int e = inet_pton(AF_INET6, this->addr.c_str(), (void*) &server.sin6_addr);
@@ -161,6 +167,12 @@ int ics_server::ics_connect()
 	return 0;
 }
 
+/*
+ * Zapisanie adresu i portu w klasie klienta. 
+ *
+ * Moze warto zapisywac je rowniez do pliku zeby latwiej wznawiac komunikacje?
+ */
+
 int ics_server::ics_getinfo(std::string a, int p){
 	std::cout << "Address: " << a << "\nPort: " << p << std::endl;
 
@@ -180,10 +192,14 @@ std::string ics_server::ics_clist(){
 	if(ics_recv(512, SRV_LIST_RESP) != 0)
 		return "";
 	clist = buf;
-	msg = CL_LIST_ACC + semi;       //czy to jest potrzebne
+	msg = CL_LIST_ACC + semi;       //TODO Usunac komunikat 43. W niczym nie pomaga i jest zbedny.
 	send(sock, msg.c_str(), msg.length(), 0);
 	return clist;
 }
+
+/*
+ * Prosba do serwera o usuniecie nas z listy klientow.
+ */
 
 int ics_server::ics_disconnect(){
 	std::cout << "Attempting to disconnect...\n";
@@ -200,6 +216,10 @@ int ics_server::ics_disconnect(){
 	return 0;
 }
 
+/*
+ * Procedura wysylania pliku. Najpierw sprawdzamy czy istnieje i przesylamy parametry do serwera, a nastepnie czytamy z pliku i wysylamy segmenty danych.
+ */
+
 int ics_server::ics_send(std::string user, std::string path_to_file, int blocksize){
 	std::ifstream file;
 	int len, segments;
@@ -212,7 +232,7 @@ int ics_server::ics_send(std::string user, std::string path_to_file, int blocksi
 	file.seekg(0, file.end);
 	len = file.tellg();
 	file.seekg(0, file.beg);
-
+	//parametry dla odbiorcow
 	msg = CL_UPLOAD_REQ + semi + user + semi + path_to_file + semi + std::to_string(len) + semi;
 
 	send(sock, msg.c_str(), msg.length(), 0);
@@ -221,7 +241,7 @@ int ics_server::ics_send(std::string user, std::string path_to_file, int blocksi
 		std::cout << "No response from server\n";
 		return -2;
 	}
-
+	//serwer ostatecznie decyduje o liczbie segmentow (zalezy od konfiguracji)
 	msg = CL_UPLOAD_SEG_SIZE + semi + std::to_string(blocksize) + semi;
 
 
@@ -234,8 +254,8 @@ int ics_server::ics_send(std::string user, std::string path_to_file, int blocksi
 
 	segments = atoi(buf.c_str());
 
-	for(segments;segments != 0;--segments){
-		//TODO
+	for(;;){
+		//TODO	
 	}
 
 	return 0;
@@ -245,6 +265,10 @@ int ics_server::ics_send(std::string user, std::string path_to_file, int blocksi
 int ics_server::ics_recv_file(){
 	return 0;
 }
+
+/*
+ * vvv Funkcje pomocnicze dla idc_input_handler
+ */
 
 void ics_server::ics_setname(std::string nm){
 	name = nm;
@@ -267,7 +291,8 @@ ics_input_handler::ics_input_handler(ics_server* serv){
 
 
 /*
- * Wywolujemy funkcje ics_server w zaleznosci od wpisanej komendy
+ * Wywolujemy funkcje ics_server w zaleznosci od wpisanej komendy.
+ * Pierwszy pomysl uzywal switch ale byly trudnosci z funkcja zamieniajaca string na unikalny int. Dlatego funkcja jest dosyc brzydka, moze uda sie to naprawic w przyszlosci.
  */
 
 int ics_input_handler::execute(){
@@ -354,6 +379,10 @@ int ics_input_handler::get_command(){
 
 	return execute();
 }
+
+/*
+ * Help text
+ */
 
 void ics_input_handler::print_help(){
 	std::cout << "Basic syntax for commands: [command] <arguments>. Commands are case sensitive.\nCurrent command list:\nname (optional) <new_name> - Prints your current name. Changes name to new_name if it's given.\nset <address> (optional) <port> - Set up connection parameters. You need to set the parameters of the server before making a connection. Remember that ICS uses IPv6. The default port is 45456.\nconnect - Connect to a server using given parameters.\nhelp - Show this text.\n\nWhile connected:\nlist - List the names of clients currently available on the server.\ndisconnect - Willingly disconnect from the server\n";
