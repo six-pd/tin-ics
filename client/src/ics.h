@@ -75,13 +75,19 @@ class ics_server
 	 * Funkcja obslugujaca odbieranie komunikatow
 	 */
 
-	int ics_recv(int len, std::string flag, int tries = 20);
+	int ics_recv(int len, std::string flag);
 
 	/*
-	 * Funkcja obslugujaca odbieranie plikow
+	 * Funkcja obslugujaca odbieranie komunikatow podczas wysylania plikow
 	 */
 
-	int ics_file_recv(std::string flag);
+	int ics_sfile_recv(std::string flag, char* fbuffer, size_t sendsize);
+	
+	/*
+	 * Funkcja obslugujaca odbieranie komunikatow podczas odbierania plikow
+	 */
+
+	int ics_rfile_recv();
 
 	/*
 	 * Funkcja zajmujaca sie autoryzacja oraz polaczeniem z serwerem.

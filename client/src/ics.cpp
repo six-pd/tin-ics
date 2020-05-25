@@ -34,18 +34,19 @@ ics_server::ics_server()
  * poprzedni komunikat. Dzieki temu jest w stanie ponowic zapytanie w razie
  * blednego odczytu.
  */
-int ics_server::ics_recv(int len, std::string flag, int tries)
+int ics_server::ics_recv(int len, std::string flag)
 {
 	char temp[len+1];
-	for(int i = 0;i <= tries;++i){
+	char errorf[] = ERROR;
+	for(;;){
 		int numbytes = recv(sock, temp, len, 0);
 		if (numbytes == -1){
 			std::cout << "Recv function error: " << errno << '\n';
-			return -2;
+			return -1;
 		}
-		if(numbytes > len){
-			send(sock, msg.c_str(), msg.length(), 0);
-			continue;
+		if(strncmp(temp, errorf, 2) ==  0){
+			std::cout << "Server error, aborting.\n";
+			return -2;
 		}
 		temp[len] = '\0';
 		if(strncmp(temp, flag.c_str(), 2) != 0)
@@ -60,7 +61,7 @@ int ics_server::ics_recv(int len, std::string flag, int tries)
 			return 0;
 		}
 	}
-	return -1;
+	return -3;
 }
 /*
  * Procedura handshake, przeprowadzona krok po kroku.
@@ -215,6 +216,54 @@ int ics_server::ics_disconnect(){
 	std::cout << "SSID Removed, client disconnected.\n";
 	return 0;
 }
+/*
+ * Funkcja pomocnicza do wysylania pliku. Dziala podobnie do ics_recv ale uzywa wiekszych buforow danych.
+ */
+int ics_server::ics_sfile_recv(std::string flag, char* fbuffer, size_t sendsize){
+	char temp[5];
+	char errorf[] = ERROR;
+	for(;;){
+		if(flag == SRV_UP_PAYLOAD_ACC){
+			temp[5] = '\0';
+			int numbytes = recv(sock, temp, 5, 0);
+			if(numbytes == -1){
+				std::cout << "Recv function error: " << errno << std::endl;
+				return -1;
+			}
+			if(strncmp(temp, errorf, 2) == 0){
+				std::cout << "Server error, aborting.\n";
+				return -2;
+			}else if(strncmp(temp, flag.c_str(), 2) != 0){
+				send(sock, fbuffer, sendsize, 0);
+				continue;
+			}else{
+				buf = temp + 3;
+				buf.pop_back(); //ends with ;
+				return 0;
+			}
+		}else if(flag == SRV_UP_COMPLETE){
+			temp[3] = '\n';
+			int numbytes = recv(sock, temp, 3, 0);
+			if(numbytes == -1){
+				std::cout << "Recv function error: " << errno << std::endl;
+				return -1;
+			}
+			if(strncmp(temp, errorf, 2) == 0){
+				std::cout << "Server error, aborting.\n";
+				return -2;
+			}else if(strncmp(temp, flag.c_str(), 2) != 0){
+				send(sock, fbuffer, sendsize, 0);
+				continue;
+			}else{
+				buf = temp + 3;
+				buf.pop_back();
+				return 0;
+			}
+		}else{
+			return -3; //Wrong use of the function;
+		}
+	}
+}
 
 /*
  * Procedura wysylania pliku. Najpierw sprawdzamy czy istnieje i przesylamy parametry do serwera, a nastepnie czytamy z pliku i wysylamy segmenty danych.
@@ -263,11 +312,32 @@ int ics_server::ics_send(std::string user, std::string path_to_file, int blocksi
 		strcpy(fbuffer+3, num.c_str());
 		file.read(fbuffer+5, blocksize);
 		size_t count = file.gcount();	
+		--segments;
+		send(sock, fbuffer, count, 0);
+		if(segments != 0){
+			if(ics_sfile_recv(SRV_UP_PAYLOAD_ACC, fbuffer, count) != 0){
+				std::cout << "Error while sending file!\n";
+				return -1;
+			}
+		}else{
+			if(ics_sfile_recv(SRV_UP_COMPLETE, fbuffer, count) != 0){
+				std::cout << "Error while sending final segment!\n";
+				return -2;
+			}else{
+				std::cout << "File upload complete!\n";
+				break;
+			}
+		}
+		
 	}
 
 	return 0;
 }
 
+
+int ics_server::ics_rfile_recv(){
+	return 0;
+}
 
 int ics_server::ics_recv_file(){
 	return 0;
