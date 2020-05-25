@@ -325,8 +325,12 @@ int ics_server::ics_send(std::string user, std::string path_to_file, int blocksi
 	file.seekg(0, file.end);
 	len = file.tellg();
 	file.seekg(0, file.beg);
+
+	int pos = path_to_file.find_last_of('/');
+	std::string filename = path_to_file.substr(pos+1);
+
 	//parametry dla odbiorcow
-	msg = CL_UPLOAD_REQ + semi + user + semi + path_to_file + semi + std::to_string(len) + semi;
+	msg = CL_UPLOAD_REQ + semi + user + semi + filename + semi + std::to_string(len) + semi;
 
 	send(sock, msg.c_str(), msg.length(), 0);
 
@@ -374,6 +378,10 @@ int ics_server::ics_send(std::string user, std::string path_to_file, int blocksi
 	return 0;
 }
 
+/*
+ * Glowna petla watku sluchajacego. Reaguje tylko na sygnal rozlaczenia i odebrania pliku
+ */
+
 void* ics_server::ics_listen(){
 	int r;
 	char temp[2];
@@ -397,15 +405,41 @@ void* ics_server::ics_listen(){
 return NULL;
 }
 
+/*
+ * Watek musi wiedziec o naszej instancji ics_server
+ */
+
 void* ics_server::ics_listen_helper(void* context){
 	return ((ics_server *)context)->ics_listen();
 }
 
-int ics_server::ics_rfile_recv(){
+/*
+ * Funkcja zajmujaca sie komunikacja dla odbierania pliku. Ma inne wymagania niz wersje dla wysylania i dla zwyklej komunikacji
+ */
+
+int ics_server::ics_rfile_recv(std::string flag, char *fbuffer, int size){
 	return 0;
 }
 
 int ics_server::ics_recv_file(){
+	char* initial_msg = new char[1024];
+	recv(sock, initial_msg, 1024, 0);
+	std::string initial_message(initial_msg + 3);
+
+	//Get file details
+
+	std::string name, filename, size;
+	int pos = initial_message.find_first_of(';');
+	name = initial_message.substr(0, pos);
+	filename = initial_message.substr(pos+1);
+	pos = filename.find_first_of(';');
+	size = filename.substr(pos+1);
+	filename = filename.substr(0, pos);
+
+	//Tell the user
+
+	std::cout << "Incoming file \"" << filename << "\", size " << size  << " from user " << name << std::endl;
+
 	return 0;
 }
 
@@ -445,6 +479,10 @@ int ics_input_handler::execute(){
 			std::cout << "Current name: " << sr->ics_getname() << std::endl;;
 			return 0;
 		}else{
+			if(args.find_first_of(';') != std::string::npos){
+				std::cout << "';' is not allowed as a part of the name.\n";
+				return 0;
+			}
 			sr->ics_setname(args);
 			std::cout << "Name set.\n";
 			return 0;
