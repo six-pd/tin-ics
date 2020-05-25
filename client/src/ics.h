@@ -12,6 +12,7 @@
 #include <iostream>
 #include <fstream>
 #include <errno.h>
+#include <pthread.h>
 
 /*
  * Header file for the ICS API.
@@ -70,6 +71,8 @@ class ics_server
 	std::string name, addr;
 	int port;	
 	const std::string semi = ";";
+	pthread_mutex_t mutex;
+	pthread_t receiver;
 
 	/*
 	 * Funkcja obslugujaca odbieranie komunikatow
@@ -134,6 +137,14 @@ public:
 	 */
 
 	int ics_recv_file();
+
+	/*
+	 * Funkcja dla watku nasluchujacego
+	 */
+
+	void* ics_listen();
+
+	static void* ics_listen_helper(void* context);
 
 	void ics_setname(std::string nm);
 

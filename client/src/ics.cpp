@@ -1,6 +1,10 @@
 #include "ics.h"
 ics_server::ics_server()
 {
+
+	//mutex
+	mutex = PTHREAD_MUTEX_INITIALIZER;
+
 	/*
 	 * Tworzymy gniazdo
 	 */
@@ -37,30 +41,42 @@ ics_server::ics_server()
 int ics_server::ics_recv(int len, std::string flag)
 {
 	char temp[len+1];
+	char *check = new char;
 	char errorf[] = ERROR;
 	for(;;){
+		pthread_mutex_lock(&mutex);
+		recv(sock, check, 1, MSG_PEEK);
+		if(*check == '3'){
+			pthread_mutex_unlock(&mutex);
+			continue;
+		}
 		int numbytes = recv(sock, temp, len, 0);
 		if (numbytes == -1){
 			std::cout << "Recv function error: " << errno << '\n';
+			pthread_mutex_unlock(&mutex);
 			return -1;
 		}
 		if(strncmp(temp, errorf, 2) ==  0){
 			std::cout << "Server error, aborting.\n";
+			pthread_mutex_unlock(&mutex);
 			return -2;
 		}
 		temp[len] = '\0';
 		if(strncmp(temp, flag.c_str(), 2) != 0)
 		{
 			send(sock, msg.c_str(), msg.length(), 0);
+			pthread_mutex_unlock(&mutex);
 			continue;
 		}
 		else
 		{
 			buf = temp + 3;
 			buf.pop_back(); //ends with ';'
+			pthread_mutex_unlock(&mutex);
 			return 0;
 		}
 	}
+	pthread_mutex_unlock(&mutex);
 	return -3;
 }
 /*
@@ -163,6 +179,11 @@ int ics_server::ics_connect()
 	if(hs < 0){
 		printf("Error code: %d\n", hs*(-1));
 		throw "Handshake error";
+		return -4;
+	}
+	if(pthread_create(&receiver, NULL, &ics_server::ics_listen_helper, this)){
+		throw "Error creating receiver thread!";
+		return -5;
 	}
 
 	return 0;
@@ -213,7 +234,10 @@ int ics_server::ics_disconnect(){
 	}
 	ssid_file.open(dirpath + "ssid", std::ofstream::out | std::ofstream::trunc); // Czyszczenie pliku ./.ics/ssid
 	ssid_file.close();
-	std::cout << "SSID Removed, client disconnected.\n";
+	std::cout << "SSID Removed\n";
+	std::cout << "Waiting for  receiver...\n";
+	pthread_join(receiver, NULL);
+	std::cout << "Exiting...\n";
 	return 0;
 }
 /*
@@ -221,24 +245,35 @@ int ics_server::ics_disconnect(){
  */
 int ics_server::ics_sfile_recv(std::string flag, char* fbuffer, size_t sendsize){
 	char temp[5];
+	char* check = new char;
 	char errorf[] = ERROR;
 	for(;;){
+		pthread_mutex_lock(&mutex);
+		recv(sock, check, 1, MSG_PEEK);
+		if(*check == '3'){
+			pthread_mutex_unlock(&mutex);
+			continue;
+		}
 		if(flag == SRV_UP_PAYLOAD_ACC){
 			temp[5] = '\0';
 			int numbytes = recv(sock, temp, 5, 0);
 			if(numbytes == -1){
 				std::cout << "Recv function error: " << errno << std::endl;
+				pthread_mutex_unlock(&mutex);
 				return -1;
 			}
 			if(strncmp(temp, errorf, 2) == 0){
 				std::cout << "Server error, aborting.\n";
+				pthread_mutex_unlock(&mutex);
 				return -2;
 			}else if(strncmp(temp, flag.c_str(), 2) != 0){
 				send(sock, fbuffer, sendsize, 0);
+				pthread_mutex_unlock(&mutex);
 				continue;
 			}else{
 				buf = temp + 3;
 				buf.pop_back(); //ends with ;
+				pthread_mutex_unlock(&mutex);
 				return 0;
 			}
 		}else if(flag == SRV_UP_COMPLETE){
@@ -246,20 +281,25 @@ int ics_server::ics_sfile_recv(std::string flag, char* fbuffer, size_t sendsize)
 			int numbytes = recv(sock, temp, 3, 0);
 			if(numbytes == -1){
 				std::cout << "Recv function error: " << errno << std::endl;
+				pthread_mutex_unlock(&mutex);
 				return -1;
 			}
 			if(strncmp(temp, errorf, 2) == 0){
 				std::cout << "Server error, aborting.\n";
+				pthread_mutex_unlock(&mutex);
 				return -2;
 			}else if(strncmp(temp, flag.c_str(), 2) != 0){
 				send(sock, fbuffer, sendsize, 0);
+				pthread_mutex_unlock(&mutex);
 				continue;
 			}else{
 				buf = temp + 3;
 				buf.pop_back();
+				pthread_mutex_unlock(&mutex);
 				return 0;
 			}
 		}else{
+			pthread_mutex_unlock(&mutex);
 			return -3; //Wrong use of the function;
 		}
 	}
@@ -334,6 +374,32 @@ int ics_server::ics_send(std::string user, std::string path_to_file, int blocksi
 	return 0;
 }
 
+void* ics_server::ics_listen(){
+	int r;
+	char temp[2];
+	std::string requestf = SRV_DOWNLOAD_REQ;
+	std::string shutdown = SRV_END_ACC;
+	for(;;){
+		pthread_mutex_lock(&mutex);
+		recv(sock, temp, 2, MSG_PEEK);
+		if(strcmp(temp, requestf.c_str()) == 0){
+			r = ics_recv_file();
+			if(r != 0)
+				std::cout << "Error code: " << r << "\nError while receiving file!\n";
+		}
+		if(strcmp(temp, shutdown.c_str()) == 0){
+			pthread_mutex_unlock(&mutex);
+			return NULL;
+		}
+		pthread_mutex_unlock(&mutex);
+	}
+//can't end up here
+return NULL;
+}
+
+void* ics_server::ics_listen_helper(void* context){
+	return ((ics_server *)context)->ics_listen();
+}
 
 int ics_server::ics_rfile_recv(){
 	return 0;
@@ -404,11 +470,10 @@ int ics_input_handler::execute(){
 			std::cout << "Specify connection parameters\n";
 			return -1;
 		}
-		int ret;
 		try{
-			ret = sr->ics_connect();
+			sr->ics_connect();
 		}catch(const char* err){
-			std::cout << "While connecting: " << err << "Function returned " << ret << std::endl;
+			std::cout << "While connecting: " << err << std::endl;
 			return -2;
 		}
 		this->connected = true;

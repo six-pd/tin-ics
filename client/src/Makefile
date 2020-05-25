@@ -1,7 +1,8 @@
-CF = -std=c++11 #-Wall -g
+CF = -std=c++11 -Wall -g
+LF = -lpthread
 
 all: client.o ics.o
-	g++ client.o ics.o -o client.out
+	g++ client.o ics.o -o client.out $(LF)
 
 client.o: client.cpp ics.h
 	g++ -c $(CF) client.cpp -o client.o
