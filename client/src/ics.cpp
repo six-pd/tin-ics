@@ -345,28 +345,44 @@ int ics_server::ics_send(std::string user, std::string path_to_file, int blocksi
 	send(sock, msg.c_str(), msg.length(), 0);
 
 	if(ics_recv(3, SRV_UPLOAD_SEG_NUM) != 0){
-		std::cout << "Failed to retrieve number of segments from server";
+		std::cout << "Failed to retrieve number of segments from server\n";
 		return -3;
 	}
 
 	segments = atoi(buf.c_str());
 
+	if(ics_recv(5, SRV_RECEIVER_INFO) != 0){
+		std::cout << "Did not get response from target user. Aborting...\n";
+		return -4;
+	}
+	if(buf != "Y"){
+		std::cout << "User " << user << " declined file transfer.\n";
+		return 0;
+	}
+	bool received = true;
 	for(;;){
-		std::string num = std::to_string(segments) + semi;
-		strcpy(fbuffer+3, num.c_str());
-		file.read(fbuffer+5, blocksize);
-		size_t count = file.gcount();	
-		--segments;
+		if(received){
+			std::string num = std::to_string(segments) + semi;
+			strcpy(fbuffer+3, num.c_str());
+			file.read(fbuffer+5, blocksize);
+			size_t count = file.gcount();
+		}
 		send(sock, fbuffer, count, 0);
-		if(segments != 0){
+		if(segments != 1){
 			if(ics_sfile_recv(SRV_UP_PAYLOAD_ACC, fbuffer, count) != 0){
 				std::cout << "Error while sending file!\n";
-				return -1;
+				return -5;
+			}
+			if(stoi(buf) == segments){
+				received = true;
+				--segments;
+			}else{
+				received = false;
 			}
 		}else{
 			if(ics_sfile_recv(SRV_UP_COMPLETE, fbuffer, count) != 0){
 				std::cout << "Error while sending final segment!\n";
-				return -2;
+				return -6;
 			}else{
 				std::cout << "File upload complete!\n";
 				break;
@@ -417,8 +433,25 @@ void* ics_server::ics_listen_helper(void* context){
  * Funkcja zajmujaca sie komunikacja dla odbierania pliku. Ma inne wymagania niz wersje dla wysylania i dla zwyklej komunikacji
  */
 
-int ics_server::ics_rfile_recv(std::string flag, char *fbuffer, int size){
-	return 0;
+int ics_server::ics_rfile_recv(char *fbuffer, size_t size, int* received, int segments){
+	char temp[size + 5];
+	char errorf[] = ERROR;
+	char flag[] = SRV_DOWN_PAYLOAD;
+	for(;;){
+		*received = recv(sock, temp, 5, 0);
+		if(*received < 0){
+			std::cout << "Recv function error while downloading file.\n";
+			return -1;
+		}
+		if(strncmp(temp, errorf, 2) == 0){
+			std::cout << "Server error while downloading.\n";
+			return -2;
+		}else if(strncmp(temp, flag, 2) == 0){
+			strcpy(fbuffer, temp);
+			
+		}
+	}
+
 }
 
 int ics_server::ics_recv_file(){
@@ -428,7 +461,7 @@ int ics_server::ics_recv_file(){
 
 	//Get file details
 
-	std::string name, filename, size;
+	std::string name, filename, size, answer;
 	int pos = initial_message.find_first_of(';');
 	name = initial_message.substr(0, pos);
 	filename = initial_message.substr(pos+1);
@@ -439,7 +472,55 @@ int ics_server::ics_recv_file(){
 	//Tell the user
 
 	std::cout << "Incoming file \"" << filename << "\", size " << size  << " from user " << name << std::endl;
+	std::cout << "Do you wish to accept? (y/N)\n";
+	std::cin >> answer;
+	if(answer != "y"){
+		std::cout << "Aborting...\n";
+		msg = CL_DOWNLOAD_RESP + semi + 'N' + semi;
+		send(sock, msg.c_str(), 5, 0);
+		return 0;
+	}
+	std::cout << "Select segment size (size of a single packet): ";
+	str::string seg_size;
+	std::cin >> seg_size;
 
+	msg = CL_DOWNLOAD_RESP + semi + 'Y' + semi + seg_size + semi;
+	send(sock, msg.c_str(), msg.length(), 0);
+
+	if(ics_recv(7, SRV_DOWNLOAD_SEG_NUM) != 0){
+		return -1;
+	}
+	int segments;
+	segments = std::stoi(buf);
+
+	//prepare local file
+
+	std::ofstream file;
+	file.open(dirpath+filename, std::ios:app);
+	if(!file.is_open()){
+		std::cout << "Failed to create file " << filename << std::endl;
+		msg = ERROR + semi;
+		send(sock, msg.c_str(), msg.length(), 0);
+		return -2;
+	}
+	
+	msg = CL_DOWNLOAD_READY + semi;
+	send(sock, msg.c_str(), msg.length(), 0);
+	char* fbuffer = new char[stoi(seg_size) + 5];
+	for(;;){
+		int *received;
+		int r = ics_rfile_recv(fbuffer, stoi(seg_size), *received, segments)
+		if(r < 0){
+			std::cout << "Error while retreiving segment " << segments <<  " data.\n";
+			return -3;
+		}
+		file.write(fbuffer, *received);
+		--segments;
+		if(r == 1){
+			file.close();
+			break;
+		}
+	}
 	return 0;
 }
 

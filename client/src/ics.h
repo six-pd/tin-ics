@@ -90,7 +90,7 @@ class ics_server
 	 * Funkcja obslugujaca odbieranie komunikatow podczas odbierania plikow
 	 */
 
-	int ics_rfile_recv(std::string flag, char *buffer, int size);
+	int ics_rfile_recv(char *buffer, size_t size, int* received, int segments);
 
 	/*
 	 * Funkcja zajmujaca sie autoryzacja oraz polaczeniem z serwerem.
