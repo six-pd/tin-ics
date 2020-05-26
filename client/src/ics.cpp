@@ -39,7 +39,7 @@ ics_server::ics_server()
 	}
 	else
 		std::cout << "Success\n";
-	name = "ICS User";
+	name = "ICS_User";
 }
 /*
  * Kiedy ics_recv jest wywolane, zaklada ze w zmiennej msg znajduje sie
@@ -660,7 +660,7 @@ int ics_input_handler::get_command(){
 		first_start=false;
 		std::cout << "Input handler ready.\nWelcome to ICS. Type \"help\" for available commands.\n";
 	}
-	std::cout << ">>";
+	std::cout << ">> ";
 	std::getline(std::cin, input);
 
 	int pos = input.find_first_of(" ");
@@ -678,6 +678,27 @@ int ics_input_handler::get_command(){
  */
 
 void ics_input_handler::print_help(){
-	std::cout << "Basic syntax for commands: <command> <arguments>. Commands are case sensitive.\nCurrent command list:\nname (optional) <new_name> - Prints your current name. Changes name to new_name if it's given.\nset <address> (optional) <port> - Set up connection parameters. You need to set the parameters of the server before making a connection. Remember that ICS uses IPv6. The default port is 45456.\nconnect - Connect to a server using given parameters.\nhelp - Show this text.\n\nWhile connected:\nlist - List the names of clients currently available on the server.\nsend <user> <file> <segment size> - send <file> to <user> connected to the server. Segment size specifies the size of packets used for uploading the file.\ndisconnect - Willingly disconnect from the server\n";
+	std::cout <<
+R"(
+Basic syntax for commands: <command> <arguments>.
+Commands are case sensitive. [arguments] are optional.
+
+Current command list:
+name [new_name] - Prints your current name.
+	Changes name to [new_name] if given, default is ICS_User.
+set <address> [port] - Set up connection parameters.
+	You need to set the parameters of the server before connecting.
+	Remember that ICS uses IPv6. The default port is 45456.
+connect - Connect to a server using given parameters.
+help - Show this help message.
+quit - Quit this client app.
+
+While connected:
+list - List the names of clients currently available on the server.
+send <user> <file> <seg size> - send <file> to <user> connected to the server.
+	Segment size specifies the size of packets used for uploading the file.
+disconnect - Willingly disconnect from the server
+
+)";
 return;
 }
