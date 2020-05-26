@@ -122,8 +122,6 @@ int ics_server::ics_handshake()
 	msg = CL_SSID_REQ + semi;
 
 	std::ifstream ssid_file(dirpath + "ssid");
-	if(!ssid_file.is_open())
-		return -5;
 	ssid_file >> ssid;
 	ssid_file.close();
 	if(ssid.length() != 3){
