@@ -360,12 +360,13 @@ int ics_server::ics_send(std::string user, std::string path_to_file, int blocksi
 		return 0;
 	}
 	bool received = true;
+	size_t count;
 	for(;;){
 		if(received){
 			std::string num = std::to_string(segments) + semi;
 			strcpy(fbuffer+3, num.c_str());
 			file.read(fbuffer+5, blocksize);
-			size_t count = file.gcount();
+			count = file.gcount();
 		}
 		send(sock, fbuffer, count, 0);
 		if(segments != 1){
@@ -373,7 +374,7 @@ int ics_server::ics_send(std::string user, std::string path_to_file, int blocksi
 				std::cout << "Error while sending file!\n";
 				return -5;
 			}
-			if(stoi(buf) == segments){
+			if(std::stoi(buf) == segments){
 				received = true;
 				--segments;
 			}else{
@@ -434,11 +435,11 @@ void* ics_server::ics_listen_helper(void* context){
  */
 
 int ics_server::ics_rfile_recv(char *fbuffer, size_t size, int* received, int segments){
-	char temp[size + 5];
+	char temp[size + 6];
 	char errorf[] = ERROR;
 	char flag[] = SRV_DOWN_PAYLOAD;
 	for(;;){
-		*received = recv(sock, temp, 5, 0);
+		*received = recv(sock, temp, size + 5, 0);
 		if(*received < 0){
 			std::cout << "Recv function error while downloading file.\n";
 			return -1;
@@ -447,8 +448,17 @@ int ics_server::ics_rfile_recv(char *fbuffer, size_t size, int* received, int se
 			std::cout << "Server error while downloading.\n";
 			return -2;
 		}else if(strncmp(temp, flag, 2) == 0){
-			strcpy(fbuffer, temp);
-			
+			char s = temp[4];
+			int seg = s - '0';	//brzydkie, tymczasowe rozwiazanie do testow(segmenty < 10).
+			if(seg != segments){
+				send(sock, msg.c_str(), msg.length(), 0);
+				continue;
+			}
+			strncpy(fbuffer, temp + 5, *received - 5);
+			if(segments == 1)
+				return 1;
+			else
+				return 0;
 		}
 	}
 
@@ -481,7 +491,7 @@ int ics_server::ics_recv_file(){
 		return 0;
 	}
 	std::cout << "Select segment size (size of a single packet): ";
-	str::string seg_size;
+	std::string seg_size;
 	std::cin >> seg_size;
 
 	msg = CL_DOWNLOAD_RESP + semi + 'Y' + semi + seg_size + semi;
@@ -496,7 +506,7 @@ int ics_server::ics_recv_file(){
 	//prepare local file
 
 	std::ofstream file;
-	file.open(dirpath+filename, std::ios:app);
+	file.open(dirpath+filename, std::ios::app);
 	if(!file.is_open()){
 		std::cout << "Failed to create file " << filename << std::endl;
 		msg = ERROR + semi;
@@ -506,18 +516,22 @@ int ics_server::ics_recv_file(){
 	
 	msg = CL_DOWNLOAD_READY + semi;
 	send(sock, msg.c_str(), msg.length(), 0);
-	char* fbuffer = new char[stoi(seg_size) + 5];
+	char* fbuffer = new char[std::stoi(seg_size) + 1];
 	for(;;){
-		int *received;
-		int r = ics_rfile_recv(fbuffer, stoi(seg_size), *received, segments)
+		int *received = NULL;
+		int r = ics_rfile_recv(fbuffer, std::stoi(seg_size), received, segments);
 		if(r < 0){
 			std::cout << "Error while retreiving segment " << segments <<  " data.\n";
 			return -3;
 		}
 		file.write(fbuffer, *received);
+		msg = CL_DOWN_ACC + semi + std::to_string(segments) + semi;
 		--segments;
+		send(sock, msg.c_str(), msg.length(), 0);
 		if(r == 1){
 			file.close();
+			msg = CL_DOWN_COMPLETE + semi;
+			send(sock, msg.c_str(), msg.length(), 0);
 			break;
 		}
 	}
@@ -605,6 +619,18 @@ int ics_input_handler::execute(){
 	}else if(command == "list" && this->connected){
 		std::cout << "Client list:\n" << sr->ics_clist() << std::endl;
 		return 0;
+	}else if(command == "send" && this->connected){
+		std::string user, file, segsize;
+		int pos = args.find_first_of(' ');
+		user = args.substr(0, pos);
+		file = args.substr(pos+1);
+		pos = file.find_first_of(' ');
+		segsize = file.substr(pos + 1);
+		file = file.substr(0, pos);
+
+		if(sr->ics_send(user, file, std::stoi(segsize)) < 0)
+			return -1;
+		return 0;
 	}else if(command == "quit"){
 		std::cout << "Shutting down client...\n";
 		return 45456;
@@ -646,6 +672,6 @@ int ics_input_handler::get_command(){
  */
 
 void ics_input_handler::print_help(){
-	std::cout << "Basic syntax for commands: [command] <arguments>. Commands are case sensitive.\nCurrent command list:\nname (optional) <new_name> - Prints your current name. Changes name to new_name if it's given.\nset <address> (optional) <port> - Set up connection parameters. You need to set the parameters of the server before making a connection. Remember that ICS uses IPv6. The default port is 45456.\nconnect - Connect to a server using given parameters.\nhelp - Show this text.\n\nWhile connected:\nlist - List the names of clients currently available on the server.\ndisconnect - Willingly disconnect from the server\n";
+	std::cout << "Basic syntax for commands: <command> <arguments>. Commands are case sensitive.\nCurrent command list:\nname (optional) <new_name> - Prints your current name. Changes name to new_name if it's given.\nset <address> (optional) <port> - Set up connection parameters. You need to set the parameters of the server before making a connection. Remember that ICS uses IPv6. The default port is 45456.\nconnect - Connect to a server using given parameters.\nhelp - Show this text.\n\nWhile connected:\nlist - List the names of clients currently available on the server.\nsend <user> <file> <segment size> - send <file> to <user> connected to the server. Segment size specifies the size of packets used for uploading the file.\ndisconnect - Willingly disconnect from the server\n";
 return;
 }
