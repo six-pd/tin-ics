@@ -10,14 +10,15 @@
 #include <errno.h>
 
 #define TEMP_PORT 45456
-pthread_mutex_t mutex;
+pthread_mutex_t mutex_recv;
+
 
 int main(int argc, char **argv)
 {
     typedef void* (*THREADFUNCPTR)(void*);
 
     srand(time(NULL));
-    mutex = PTHREAD_MUTEX_INITIALIZER;
+    mutex_recv = PTHREAD_MUTEX_INITIALIZER;
 
     int sock;
     socklen_t length;
@@ -40,7 +41,7 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    length = sizeof(serverAddr);
+    length = sizeof(struct sockaddr_in6);
     if (getsockname(sock,(sockaddr*) &serverAddr, &length) == -1)
     {
         std::cout << "Error getting socket name" << std::endl;
@@ -50,15 +51,15 @@ int main(int argc, char **argv)
     
     do
     {
-        pthread_mutex_lock(&mutex);
+        length = sizeof(struct sockaddr_in6);
+        pthread_mutex_lock(&mutex_recv);
         int status = recvfrom(sock, buf, 1024, MSG_PEEK, (sockaddr*)&clientAddr, &length);
-        pthread_mutex_unlock(&mutex);
-        if(ClientHandling::findAddrInClients(clientAddr))
+        pthread_mutex_unlock(&mutex_recv);
+        if(length == 0)
             continue;
-            
         if (status < 0)
-             std::cout << "Error on connecting, code " << errno << std::endl;
-        else
+            std::cout << "Error on connecting, code " << errno << std::endl;
+        if(!ClientHandling::findAddrInClients(clientAddr))
         {
             pthread_t newThread;
             int newSock = sock;
@@ -67,6 +68,7 @@ int main(int argc, char **argv)
             memset(&length, 0, sizeof(length));
             pthread_create(&newThread, NULL, (THREADFUNCPTR) &ClientHandling::handleClient, newClient);
         }
+            
     } while(true);
     
     return 0;
