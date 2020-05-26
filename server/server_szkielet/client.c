@@ -1,3 +1,10 @@
+/*
+ * Szablon komunikacji UPD po IPv6 - klient
+ *
+ * Autor: Tomasz Zaluska, Krzysztof Blankiewicz
+ *
+ * Data utworzenia: 10/05/2020
+ */
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>

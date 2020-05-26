@@ -1,3 +1,11 @@
+/*
+ * Server header file
+ *
+ * Autorzy: Krzysztof Blankiewicz, Tomasz Zaluska, Michal Urbanski
+ *
+ * Data utworzenia: 10/04/2020
+ */
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -30,6 +38,7 @@ class ClientHandling
     
     void sendString(std::string s);
     bool receiveData();     // zwraca true jesli nie ma zadnych bledow
+    
     
     // operacje na bufIn
     int getFlagFromMsg();       // pobiera flage z bufIn; flaga jest intem

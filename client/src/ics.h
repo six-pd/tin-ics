@@ -1,3 +1,11 @@
+/*
+ * ICS Client Header File
+ *
+ * Autor: Bartlomiej Partyka, Michal Urbanski
+ *
+ * Data utworzenia 10/04/2020
+ */
+
 #pragma once
 
 #include <sys/types.h>
@@ -12,11 +20,8 @@
 #include <iostream>
 #include <fstream>
 #include <errno.h>
+#include <pthread.h>
 
-/*
- * Header file for the ICS API.
- * Bartlomiej Partyka
-*/
 
 #define BUF_SIZE 			1024
 #define CH_LEN 				3	
@@ -66,20 +71,30 @@ class ics_server
 	std::string buf;
 	std::string msg; 
 	struct sockaddr_in6 server, client;
-	std::string dirpath = ".ics/";	
+	const std::string dirpath = ".ics/";	
 	std::string name, addr;
 	int port;	
+	const std::string semi = ";";
+	pthread_mutex_t mutex;
+	pthread_t receiver;
+
 	/*
 	 * Funkcja obslugujaca odbieranie komunikatow
 	 */
 
-	int ics_recv(int len, std::string flag, int tries = 20);
+	int ics_recv(int len, std::string flag);
 
 	/*
-	 * Funkcja obslugujaca odbieranie plikow
+	 * Funkcja obslugujaca odbieranie komunikatow podczas wysylania plikow
 	 */
 
-	int ics_file_recv(std::string flag);
+	int ics_sfile_recv(std::string flag, char* fbuffer, size_t sendsize);
+	
+	/*
+	 * Funkcja obslugujaca odbieranie komunikatow podczas odbierania plikow
+	 */
+
+	int ics_rfile_recv(char *buffer, size_t size, int* received, int segments);
 
 	/*
 	 * Funkcja zajmujaca sie autoryzacja oraz polaczeniem z serwerem.
@@ -101,7 +116,7 @@ public:
 	/*
 	 * Zebranie danych do polaczenia
 	 */
-	int ics_getinfo();
+	int ics_getinfo(std::string a, int p);
 
 	/*
 	 * Wyswietlanie listy klientow na serwerze
@@ -119,13 +134,25 @@ public:
 	 * Wysylanie pliku
 	 */
 
-	int ics_send(std::string path_to_file, int blocksize);
+	int ics_send(std::string user, std::string path_to_file, int blocksize);
 
 	/*
 	 * Odbieranie pliku
 	 */
 
 	int ics_recv_file();
+
+	/*
+	 * Funkcja dla watku nasluchujacego
+	 */
+
+	void* ics_listen();
+
+	static void* ics_listen_helper(void* context);
+
+	void ics_setname(std::string nm);
+
+	std::string ics_getname();
 
 };
 
@@ -136,12 +163,14 @@ public:
 class ics_input_handler
 {
 	std::string command, args;
+	bool set, connected, first_start;
+	ics_server* sr;
 
 	/*
 	 * Wywolanie odpowiedniej metody
 	 */
 
-	void execute();
+	int execute();
 
 	/*
 	 * User help
@@ -150,12 +179,8 @@ class ics_input_handler
 	void print_help();
 public:
 
-	ics_input_handler();
+	ics_input_handler(ics_server* serv);
 
-	/*
-	 * Polecenie uzytkownika
-	 */
-
-	void get_command();
+	int get_command();
 
 };

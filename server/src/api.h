@@ -1,3 +1,10 @@
+/*
+ * Protocol flags file
+ *
+ * Autor: Krzysztof Blankiewicz
+ *
+ * Data utworzenia: 10/04/2020
+ */
 
 const int BUF_SIZE = 1024; // trzeba to potem stad zabrac
 
