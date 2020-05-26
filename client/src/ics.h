@@ -22,10 +22,6 @@
 #include <errno.h>
 #include <pthread.h>
 
-/*
- * Header file for the ICS API.
- * Bartlomiej Partyka
-*/
 
 #define BUF_SIZE 			1024
 #define CH_LEN 				3	
