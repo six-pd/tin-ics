@@ -1,3 +1,11 @@
+/*
+ * ICS Client Class File
+ *
+ * Autorzy: Bartlomiej Partyka, Michal Urbanski
+ *
+ * Data utworzenia: 10/04/2020
+ */
+
 #include "ics.h"
 ics_server::ics_server()
 {

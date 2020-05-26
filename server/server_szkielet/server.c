@@ -1,3 +1,10 @@
+/*
+ * Szablon komunikacji UDP po IPv6 - serwer
+ *
+ * Autorzy: Tomasz Zaluska, Krzysztof Blankiewicz
+ *
+ * Data utworzenia: 10/05/2020
+ */
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>

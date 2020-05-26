@@ -1,3 +1,11 @@
+/*
+ * Server Main Function
+ *
+ * Autorzy: Krzysztof Blankiewicz, Michal Urbanski, Tomasz Zaluska
+ *
+ * Data utworzenia: 10/04/2020
+ */
+
 #include "ClientHandling.h"
 #include <errno.h>
 

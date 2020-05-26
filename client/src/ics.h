@@ -1,3 +1,11 @@
+/*
+ * ICS Client Header File
+ *
+ * Autor: Bartlomiej Partyka, Michal Urbanski
+ *
+ * Data utworzenia 10/04/2020
+ */
+
 #pragma once
 
 #include <sys/types.h>

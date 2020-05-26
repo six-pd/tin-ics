@@ -1,3 +1,11 @@
+/*
+ * ICS Client Driver File (Main Function)
+ *
+ * Autor: Bartlomiej Partyka
+ *
+ * Data utworzenia: 10/05/2020
+ */
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>

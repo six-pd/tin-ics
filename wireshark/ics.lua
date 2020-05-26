@@ -1,3 +1,7 @@
+-- Wireshark Plugin for ICS
+-- Autor: Bartlomiej Partyka
+-- Data utworzenia 14/05/2020
+
 ics_protocol = Proto("ICS", "ICS Communication Protocol")
 
 req = ProtoField.new("Request", "ics.request", ftypes.CHAR)

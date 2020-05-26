@@ -1,3 +1,10 @@
+/*
+ * Server Class File - Client Handler
+ *
+ * Autorzy: Krzysztof Blankiewicz, Tomasz Zaluska, Michal Urbanski
+ *
+ * Data utworzenia: 10/04/2020
+ */
 #include "ClientHandling.h"
 #include <string.h>
 #include <string>

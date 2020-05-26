@@ -1,3 +1,11 @@
+/*
+ * Server header file
+ *
+ * Autorzy: Krzysztof Blankiewicz, Tomasz Zaluska, Michal Urbanski
+ *
+ * Data utworzenia: 10/04/2020
+ */
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
