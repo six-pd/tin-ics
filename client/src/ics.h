@@ -71,7 +71,7 @@ class ics_server
 	std::string buf;
 	std::string msg; 
 	struct sockaddr_in6 server, client;
-	std::string dirpath = ".ics/";	
+	const std::string dirpath = ".ics/";	
 	std::string name, addr;
 	int port;	
 	const std::string semi = ";";
