@@ -39,6 +39,7 @@ class ClientHandling
     void sendString(std::string s);
     bool receiveData();     // zwraca true jesli nie ma zadnych bledow
     
+    
     // operacje na bufIn
     int getFlagFromMsg();       // pobiera flage z bufIn; flaga jest intem
     int getIntArg(int argNum);  // zerowy argument to flaga

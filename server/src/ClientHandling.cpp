@@ -11,12 +11,13 @@
 #include <time.h>
 #include <algorithm>
 
-extern pthread_mutex_t mutex;
+extern pthread_mutex_t mutex_recv;
+
 
 std::vector<ClientHandling*> ClientHandling::clientsList;
 
 ClientHandling::ClientHandling(int newSocket, sockaddr_in6 newAddress)
-{
+{	
 	mySocket = newSocket;
 	clientAddress = newAddress;
 	clientAddressLen = sizeof(clientAddress);
@@ -45,8 +46,10 @@ void ClientHandling::callProperMethod()
 		sendClientsList();
 		return;
 	}
-	else 
+	else
+	{
 		disconnectRequested = true;
+	}
 }
 
 void ClientHandling::startConnection()
@@ -157,18 +160,18 @@ bool ClientHandling::receiveData()
 	len = sizeof(newAddress);
 	int rval;
 	memset(bufIn, 0, sizeof(bufIn));
-	pthread_mutex_lock(&mutex);
+	pthread_mutex_lock(&mutex_recv);
 	recvfrom(mySocket, bufIn, sizeof(bufIn), MSG_PEEK, (sockaddr*)&newAddress, &len);
-	if((*((sockaddr_in*)&newAddress)).sin_addr.s_addr == (*((sockaddr_in*)&clientAddress)).sin_addr.s_addr)
+	if((*((sockaddr_in*)&newAddress)).sin_addr.s_addr == (*((sockaddr_in*)&clientAddress)).sin_addr.s_addr && (*((sockaddr_in*)&newAddress)).sin_port == (*((sockaddr_in*)&clientAddress)).sin_port)
 	{
 		rval = recvfrom(mySocket, bufIn, sizeof(bufIn), 0, (sockaddr*)&clientAddress, &clientAddressLen);
 	}
 	else
 	{
-		pthread_mutex_unlock(&mutex);
+		pthread_mutex_unlock(&mutex_recv);
 		return false;
 	}
-	pthread_mutex_unlock(&mutex);
+	pthread_mutex_unlock(&mutex_recv);
    	if (rval == -1)
     {
 		std::cout << "Error reading stream message " << errno << std::endl;
@@ -273,8 +276,6 @@ void* ClientHandling::handleClient()
 	{
 		if(receiveData())
 			callProperMethod();
-		else
-			break;
 	} while(!disconnectRequested);
 	std::cout << "Exiting thread" << std::endl;
 
@@ -288,7 +289,7 @@ bool ClientHandling::findAddrInClients(sockaddr_in6 a)
 	//TODO: dziwnie dziala
 	for(auto i: clientsList)
 	{
-		if((*((sockaddr_in*)&a)).sin_addr.s_addr == (*((sockaddr_in*)&(i->clientAddress))).sin_addr.s_addr)
+		if((*((sockaddr_in*)&a)).sin_addr.s_addr == (*((sockaddr_in*)&(i->clientAddress))).sin_addr.s_addr && (*((sockaddr_in*)&a)).sin_port == (*((sockaddr_in*)&(i->clientAddress))).sin_port)
 		{	
 			//if((*((sockaddr_in*)&a)).sin_port == (*((sockaddr_in*)&(i->clientAddress))).sin_port)
 			{
