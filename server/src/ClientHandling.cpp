@@ -6,7 +6,6 @@
  * Data utworzenia: 10/04/2020
  */
 #include "ClientHandling.h"
-#include <string.h>
 #include <string>
 #include <time.h>
 #include <algorithm>
@@ -18,6 +17,7 @@ std::vector<ClientHandling*> ClientHandling::clientsList;
 
 ClientHandling::ClientHandling(int newSocket, sockaddr_in6 newAddress)
 {	
+	name = "default"; //changed later, default value for debugging
 	mySocket = newSocket;
 	clientAddress = newAddress;
 	clientAddressLen = sizeof(clientAddress);
@@ -31,30 +31,24 @@ void ClientHandling::callProperMethod()
 {
 	int msgFlag = getFlagFromMsg();
 
-	if(msgFlag == CL_CONNECTION_REQ)
+	switch(msgFlag)
 	{
+    case CL_CONNECTION_REQ:
 		startConnection();
 		return;
-	}
-	else if(msgFlag == CL_END_REQ)
-	{
+    case CL_END_REQ:
 		endConnection();
 		return;
-	}
-	else if(msgFlag == CL_LIST_REQ)
-	{
+    case CL_LIST_REQ:
 		sendClientsList();
 		return;
-	}
-	else
-	{
+	default:
 		disconnectRequested = true;
 	}
 }
 
 void ClientHandling::startConnection()
 {
-
 	sendAndCheckChallenge();
 	askForSSIDAndCheck();
 	getClientName();
@@ -107,7 +101,6 @@ void ClientHandling::askForSSIDAndCheck()
 
 void ClientHandling::getClientName()
 {
-	
 	if(!receiveData() || getFlagFromMsg() != CL_NAME)
 	{
 		protocolError(CL_NAME);
@@ -115,6 +108,7 @@ void ClientHandling::getClientName()
 	}
 
 	name = getStringArg(1);
+	std::cout << "NAME: " << clientsList[0]->name << std::endl;
 	sendString('0'+std::to_string(SRV_NAME_ACC)+';');
 }
 
@@ -277,10 +271,10 @@ void* ClientHandling::handleClient()
 		if(receiveData())
 			callProperMethod();
 	} while(!disconnectRequested);
-	std::cout << "Exiting thread" << std::endl;
-
 	removeFromClientsList();
 	delete this;
+
+	std::cout << "Exiting thread" << std::endl;
 	pthread_exit(NULL);
 }
 
@@ -302,11 +296,12 @@ bool ClientHandling::findAddrInClients(sockaddr_in6 a)
 
 void ClientHandling::removeFromClientsList()
 {
-	for (auto it = clientsList.begin(); it != clientsList.end();)
+	for (auto it = clientsList.begin(); it != clientsList.end(); ++it)
 	{
         if ((*it)->name == this->name)
 		{
             clientsList.erase(it);
+			break;
         }
     }
 	std::cout << "Clients remaining: " << clientsList.size() << std::endl;
