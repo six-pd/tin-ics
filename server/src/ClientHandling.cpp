@@ -280,12 +280,10 @@ void* ClientHandling::handleClient()
 
 bool ClientHandling::findAddrInClients(sockaddr_in6 a)
 {
-	//TODO: dziwnie dziala
 	for(auto i: clientsList)
 	{
-		if((*((sockaddr_in*)&a)).sin_addr.s_addr == (*((sockaddr_in*)&(i->clientAddress))).sin_addr.s_addr && (*((sockaddr_in*)&a)).sin_port == (*((sockaddr_in*)&(i->clientAddress))).sin_port)
+		if((*((sockaddr_in*)&a)).sin_addr.s_addr == (*((sockaddr_in*)&(i->clientAddress))).sin_addr.s_addr)
 		{	
-			//if((*((sockaddr_in*)&a)).sin_port == (*((sockaddr_in*)&(i->clientAddress))).sin_port)
 			{
 				return true;
 			}
