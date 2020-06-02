@@ -8,6 +8,7 @@
 
 #include "ClientHandling.h"
 #include <errno.h>
+#include <arpa/inet.h>
 
 #define DEF_PORT 45456
 pthread_mutex_t mutex_recv;
@@ -34,6 +35,11 @@ int main(int argc, char **argv)
 
     serverAddr.sin6_family = AF_INET6;
     serverAddr.sin6_addr = in6addr_any;
+    int e = inet_pton(AF_INET6, argv[1], (void*)&serverAddr.sin6_addr);
+    if (e<0){
+	    std::cout << "IP address error!\n";
+	    return -1;
+    }
     serverAddr.sin6_port = htons(DEF_PORT);
     if(bind(sock, (sockaddr*) &serverAddr, sizeof serverAddr) == 1)
     {
