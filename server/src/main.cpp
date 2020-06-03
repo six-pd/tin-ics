@@ -10,20 +10,15 @@
 #include <errno.h>
 #include <arpa/inet.h>
 
-#define DEF_PORT 45456
-pthread_mutex_t mutex_recv;
-
+#define TEMP_PORT 45456
+pthread_mutex_t mutex;
 
 int main(int argc, char **argv)
 {
-    if(argc != 2){
-    	std::cout << "Please type in the IP address.\n";
-	return -1;
-    }
     typedef void* (*THREADFUNCPTR)(void*);
 
     srand(time(NULL));
-    mutex_recv = PTHREAD_MUTEX_INITIALIZER;
+    mutex = PTHREAD_MUTEX_INITIALIZER;
 
     int sock;
     socklen_t length;
@@ -38,20 +33,20 @@ int main(int argc, char **argv)
     }
 
     serverAddr.sin6_family = AF_INET6;
-    serverAddr.sin6_addr = in6addr_any;
+    //serverAddr.sin6_addr = in6addr_any;
     int e = inet_pton(AF_INET6, argv[1], (void*)&serverAddr.sin6_addr);
-    if (e<0){
-	    std::cout << "IP address error!\n";
-	    return -1;
+    if(e <= 0){
+    	std::cout << "Provide a proper IPv6 Address.\n";
+	return -1;
     }
-    serverAddr.sin6_port = htons(DEF_PORT);
+    serverAddr.sin6_port = htons(TEMP_PORT);
     if(bind(sock, (sockaddr*) &serverAddr, sizeof serverAddr) == 1)
     {
         std::cout << "Error binding stream socket" << std::endl;
         return -1;
     }
 
-    length = sizeof(sockaddr_in6);
+    length = sizeof(serverAddr);
     if (getsockname(sock,(sockaddr*) &serverAddr, &length) == -1)
     {
         std::cout << "Error getting socket name" << std::endl;
@@ -61,15 +56,15 @@ int main(int argc, char **argv)
     
     do
     {
-        length = sizeof(sockaddr_in6);
-        pthread_mutex_lock(&mutex_recv);
+        pthread_mutex_lock(&mutex);
         int status = recvfrom(sock, buf, 1024, MSG_PEEK, (sockaddr*)&clientAddr, &length);
-        pthread_mutex_unlock(&mutex_recv);
-        if (status < 0)
-            std::cout << "Error on connecting, code " << errno << std::endl;
-        if(length == 0)
+        pthread_mutex_unlock(&mutex);
+        if(ClientHandling::findAddrInClients(clientAddr))
             continue;
-        if(!ClientHandling::findAddrInClients(clientAddr))
+            
+        if (status < 0)
+             std::cout << "Error on connecting, code " << errno << std::endl;
+        else
         {
             pthread_t newThread;
             int newSock = sock;
@@ -78,7 +73,6 @@ int main(int argc, char **argv)
             memset(&length, 0, sizeof(length));
             pthread_create(&newThread, NULL, (THREADFUNCPTR) &ClientHandling::handleClient, newClient);
         }
-            
     } while(true);
     
     return 0;

@@ -37,8 +37,7 @@ class ClientHandling
 
     
     void sendString(std::string s);
-    bool receiveData();         // zwraca true jesli nie ma zadnych bledow
-    
+    bool receiveData();     // zwraca true jesli nie ma zadnych bledow
     
     // operacje na bufIn
     int getFlagFromMsg();       // pobiera flage z bufIn; flaga jest intem
@@ -67,5 +66,4 @@ public:
     void* handleClient();   // wywoluje sie na poczatku, czeka na dane, wola callProperMethod
 
     static bool findAddrInClients(struct sockaddr_in6 a);
-
 };

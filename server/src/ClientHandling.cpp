@@ -6,18 +6,17 @@
  * Data utworzenia: 10/04/2020
  */
 #include "ClientHandling.h"
+#include <string.h>
 #include <string>
 #include <time.h>
 #include <algorithm>
 
-extern pthread_mutex_t mutex_recv;
-
+extern pthread_mutex_t mutex;
 
 std::vector<ClientHandling*> ClientHandling::clientsList;
 
 ClientHandling::ClientHandling(int newSocket, sockaddr_in6 newAddress)
-{	
-	name = "default"; //changed later, default value for debugging
+{
 	mySocket = newSocket;
 	clientAddress = newAddress;
 	clientAddressLen = sizeof(clientAddress);
@@ -31,24 +30,28 @@ void ClientHandling::callProperMethod()
 {
 	int msgFlag = getFlagFromMsg();
 
-	switch(msgFlag)
+	if(msgFlag == CL_CONNECTION_REQ)
 	{
-    case CL_CONNECTION_REQ:
 		startConnection();
 		return;
-    case CL_END_REQ:
+	}
+	else if(msgFlag == CL_END_REQ)
+	{
 		endConnection();
 		return;
-    case CL_LIST_REQ:
+	}
+	else if(msgFlag == CL_LIST_REQ)
+	{
 		sendClientsList();
 		return;
-	default:
-		disconnectRequested = true;
 	}
+	else 
+		disconnectRequested = true;
 }
 
 void ClientHandling::startConnection()
 {
+
 	sendAndCheckChallenge();
 	askForSSIDAndCheck();
 	getClientName();
@@ -101,6 +104,7 @@ void ClientHandling::askForSSIDAndCheck()
 
 void ClientHandling::getClientName()
 {
+	
 	if(!receiveData() || getFlagFromMsg() != CL_NAME)
 	{
 		protocolError(CL_NAME);
@@ -108,7 +112,6 @@ void ClientHandling::getClientName()
 	}
 
 	name = getStringArg(1);
-	std::cout << "NAME: " << clientsList[0]->name << std::endl;
 	sendString('0'+std::to_string(SRV_NAME_ACC)+';');
 }
 
@@ -154,18 +157,18 @@ bool ClientHandling::receiveData()
 	len = sizeof(newAddress);
 	int rval;
 	memset(bufIn, 0, sizeof(bufIn));
-	pthread_mutex_lock(&mutex_recv);
+	pthread_mutex_lock(&mutex);
 	recvfrom(mySocket, bufIn, sizeof(bufIn), MSG_PEEK, (sockaddr*)&newAddress, &len);
-	if((*((sockaddr_in*)&newAddress)).sin_addr.s_addr == (*((sockaddr_in*)&clientAddress)).sin_addr.s_addr && (*((sockaddr_in*)&newAddress)).sin_port == (*((sockaddr_in*)&clientAddress)).sin_port)
+	if((*((sockaddr_in*)&newAddress)).sin_addr.s_addr == (*((sockaddr_in*)&clientAddress)).sin_addr.s_addr)
 	{
 		rval = recvfrom(mySocket, bufIn, sizeof(bufIn), 0, (sockaddr*)&clientAddress, &clientAddressLen);
 	}
 	else
 	{
-		pthread_mutex_unlock(&mutex_recv);
+		pthread_mutex_unlock(&mutex);
 		return false;
 	}
-	pthread_mutex_unlock(&mutex_recv);
+	pthread_mutex_unlock(&mutex);
    	if (rval == -1)
     {
 		std::cout << "Error reading stream message " << errno << std::endl;
@@ -270,20 +273,24 @@ void* ClientHandling::handleClient()
 	{
 		if(receiveData())
 			callProperMethod();
+		else
+			break;
 	} while(!disconnectRequested);
+	std::cout << "Exiting thread" << std::endl;
+
 	removeFromClientsList();
 	delete this;
-
-	std::cout << "Exiting thread" << std::endl;
 	pthread_exit(NULL);
 }
 
 bool ClientHandling::findAddrInClients(sockaddr_in6 a)
 {
+	//TODO: dziwnie dziala
 	for(auto i: clientsList)
 	{
 		if((*((sockaddr_in*)&a)).sin_addr.s_addr == (*((sockaddr_in*)&(i->clientAddress))).sin_addr.s_addr)
 		{	
+			//if((*((sockaddr_in*)&a)).sin_port == (*((sockaddr_in*)&(i->clientAddress))).sin_port)
 			{
 				return true;
 			}
@@ -294,12 +301,11 @@ bool ClientHandling::findAddrInClients(sockaddr_in6 a)
 
 void ClientHandling::removeFromClientsList()
 {
-	for (auto it = clientsList.begin(); it != clientsList.end(); ++it)
+	for (auto it = clientsList.begin(); it != clientsList.end();)
 	{
         if ((*it)->name == this->name)
 		{
             clientsList.erase(it);
-			break;
         }
     }
 	std::cout << "Clients remaining: " << clientsList.size() << std::endl;
