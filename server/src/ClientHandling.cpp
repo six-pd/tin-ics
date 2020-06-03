@@ -301,11 +301,12 @@ bool ClientHandling::findAddrInClients(sockaddr_in6 a)
 
 void ClientHandling::removeFromClientsList()
 {
-	for (auto it = clientsList.begin(); it != clientsList.end();)
+	for (auto it = clientsList.begin(); it != clientsList.end();++it)
 	{
         if ((*it)->name == this->name)
-		{
+	{
             clientsList.erase(it);
+	    break;
         }
     }
 	std::cout << "Clients remaining: " << clientsList.size() << std::endl;
