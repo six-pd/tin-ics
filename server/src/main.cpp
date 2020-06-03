@@ -16,6 +16,10 @@ pthread_mutex_t mutex_recv;
 
 int main(int argc, char **argv)
 {
+    if(argc != 2){
+    	std::cout << "Please type in the IP address.\n";
+	return -1;
+    }
     typedef void* (*THREADFUNCPTR)(void*);
 
     srand(time(NULL));
