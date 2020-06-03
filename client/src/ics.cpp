@@ -530,9 +530,13 @@ int ics_server::ics_recv_file(){
 			std::cout << "Error while retreiving segment " << segments <<  " data.\n";
 			return -3;
 		}
-		file.write(fbuffer, *received);
-		msg = CL_DOWN_ACC + semi + std::to_string(segments) + semi;
-		--segments;
+		if(*received > std::stoi(seg_size)){
+			msg = ERROR + semi;
+		}else{
+			file.write(fbuffer, *received);
+			msg = CL_DOWN_ACC + semi + std::to_string(segments) + semi;
+			--segments;
+		}
 		send(sock, msg.c_str(), msg.length(), 0);
 		if(r == 1){
 			file.close();
